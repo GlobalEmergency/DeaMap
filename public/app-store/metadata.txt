@@ -79,20 +79,18 @@ https://developer.apple.com/help/app-store-connect/reference/app-information/scr
 https://developer.apple.com/app-store/app-previews/
 
 
-ESTADO VERIFICADO DE TIENDAS
-Apple: borrador iOS 1.0.11 en PREPARE_FOR_SUBMISSION.
-Textos actualizados en es-ES y en-US.
-8 capturas JPEG nuevas con estado COMPLETE, cuatro por idioma.
+ESTADO VERIFICADO DE TIENDAS — 24/10/2026
+Apple: iOS 1.0.11, binario 10011 VALID, enviado a App Review.
+Estado WAITING_FOR_REVIEW; publicación automática AFTER_APPROVAL.
+Textos y novedades es-ES y en-US guardados; 8 capturas nuevas COMPLETE.
 Las cinco capturas previas de cada idioma se han conservado.
-No se ha solicitado revisión ni distribución; no se ha asociado un nuevo binario.
+Cifrado contrastado con el binario 10010 aprobado: misma declaración,
+dependencias e implementación nativa, de red y autenticación sin cambios.
 Google Play: acceso confirmado con la cuenta claude-access del vault.
-Textos es-ES y en-US aplicados con commit y verificados mediante la API.
-Título ES: DeaMap: Desfibriladores DEA.
-Se conservan las versiones y los tracks; producción continúa en 1.0.10.
-La ficha pública española todavía muestra los textos anteriores; los nuevos
-están guardados en la API, pendientes de revisión o propagación de Google.
-Las 8 capturas y 2 gráficas nuevas se subieron en un edit temporal de Google Play,
-se verificaron por SHA-256 y superaron edits.validate. Después se descartó el edit.
-Los archivos quedan preparados para la interfaz 1.0.11; aún no publicados.
+Versión 1.0.11 (10011) firmada, verificada en canal interno y enviada
+al track production con status completed, pendiente de revisión pública.
+Textos es-ES y en-US, 8 capturas y 2 gráficas aplicados y verificados.
+La revisión previa se canceló y se reenvió el conjunto con autorización expresa.
+No confundir un envío aceptado por la API con disponibilidad pública inmediata.
 La ficha previa se conserva en 2026-kit/08-google-play-before.json.
 Recibo de verificación sin secretos: 2026-kit/07-publication-status.json.
