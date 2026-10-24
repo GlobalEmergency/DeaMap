@@ -44,6 +44,7 @@
     "note": "Publishing to YouTube is a separate action; no YouTube account or upload is assumed"
   },
   "textSource": "../01-store-listings.json",
-  "appleDraftVersion": "1.0.11",
-  "googlePlayAccess": "403; authorized DeaMap publisher account required"
+  "googlePlayAccess": "Authorized publisher access verified; production 1.0.11 submitted with new media",
+  "appleSubmittedVersion": "1.0.11",
+  "publicationStatusReference": "07-publication-status.json"
 }
