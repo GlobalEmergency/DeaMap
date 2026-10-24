@@ -5,7 +5,6 @@ import { Toaster } from "react-hot-toast";
 
 import Footer from "@/components/Footer";
 import { GoogleTagManagerHead, GoogleTagManagerBody } from "@/components/GoogleTagManager";
-import JsonLd from "@/components/JsonLd";
 import Navigation from "@/components/Navigation";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { OrganizationProvider } from "@/contexts/OrganizationContext";
@@ -15,11 +14,11 @@ import "./globals.css";
 const siteUrl = "https://deamap.es";
 const siteName = "DeaMap";
 const siteDescription =
-  "Encuentra desfibriladores cerca de ti en tiempo real. Mapa interactivo con más de 50.000 DEAs registrados en España y en todo el mundo.";
+  "Encuentra desfibriladores (DEA) cerca de ti en España. Busca por ubicación o dirección, consulta los datos disponibles y descarga DeaMap para Android y iPhone.";
 
 export const metadata: Metadata = {
   title: {
-    default: "Mapa de Desfibriladores (DEA) en España — Encuentra el más cercano | DeaMap",
+    default: "Mapa de desfibriladores (DEA) en España | DeaMap",
     template: "%s | DeaMap",
   },
   description: siteDescription,
@@ -61,7 +60,7 @@ export const metadata: Metadata = {
     locale: "es_ES",
     url: siteUrl,
     siteName,
-    title: "Mapa de Desfibriladores (DEA) en España — Encuentra el más cercano | DeaMap",
+    title: "Mapa de desfibriladores (DEA) en España | DeaMap",
     description: siteDescription,
     images: [
       {
@@ -75,7 +74,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Mapa de Desfibriladores (DEA) en España — Encuentra el más cercano | DeaMap",
+    title: "Mapa de desfibriladores (DEA) en España | DeaMap",
     description: siteDescription,
     images: ["/og-image.png"],
   },
@@ -110,7 +109,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="apple-mobile-web-app-title" content="DeaMap" />
         <link rel="manifest" href="/site.webmanifest" />
         <GoogleTagManagerHead />
-        <JsonLd />
       </head>
       <body className="font-sans antialiased flex flex-col min-h-screen">
         <GoogleTagManagerBody />

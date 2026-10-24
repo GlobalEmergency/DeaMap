@@ -16,16 +16,9 @@ function getClusterSize(count: number): number {
   return 64;
 }
 
-function getClusterColor(count: number): string {
-  if (count < 20) return "#3b82f6"; // blue
-  if (count < 50) return "#8b5cf6"; // purple
-  if (count < 100) return "#f59e0b"; // amber
-  return "#ef4444"; // red
-}
-
 const ClusterMarker: React.FC<ClusterMarkerProps> = React.memo(({ cluster, onZoomToCluster }) => {
   const size = getClusterSize(cluster.count);
-  const color = getClusterColor(cluster.count);
+  const color = "#247f52";
 
   const icon = useMemo(
     () =>

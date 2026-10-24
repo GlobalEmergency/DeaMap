@@ -1,0 +1,63 @@
+{
+  "appStoreVersion": "1.0.11",
+  "state": "WAITING_FOR_REVIEW",
+  "captureRevision": 2,
+  "googlePlay": {
+    "status": "PRODUCTION_1.0.11_SUBMITTED_AND_VERIFIED",
+    "verifiedAt": "2026-10-24T17:17:31.774553+00:00",
+    "locales": ["es-ES", "en-US"],
+    "releaseTracksUnchanged": false,
+    "productionVersion": "1.0.11",
+    "newVisuals": "8 screenshots and 2 feature graphics committed and verified",
+    "publicPropagation": "Submitted for review; public availability pending Google",
+    "mediaValidation": {
+      "status": "UPLOADS_HASH_VERIFIED_AND_EDIT_VALIDATED",
+      "verifiedAt": "2026-10-24T17:18:52.384750+00:00",
+      "locales": {
+        "es-ES": {
+          "phoneScreenshots": 4,
+          "featureGraphic": 1
+        },
+        "en-US": {
+          "phoneScreenshots": 4,
+          "featureGraphic": 1
+        }
+      },
+      "editDiscarded": true,
+      "reason": "Historical pre-release validation edit discarded; media subsequently committed with production 1.0.11"
+    },
+    "publicCheckedAt": "2026-10-24T17:21:15.093249+00:00",
+    "versionCode": 10011,
+    "releaseVerifiedAt": "2026-10-24T18:02:30.349967+00:00",
+    "mediaCounts": {
+      "es-ES": {
+        "phoneScreenshots": 4,
+        "featureGraphic": 1
+      },
+      "en-US": {
+        "phoneScreenshots": 4,
+        "featureGraphic": 1
+      }
+    }
+  },
+  "locales": {
+    "en-US": {
+      "metadataVerified": true,
+      "newScreenshotStates": ["COMPLETE", "COMPLETE", "COMPLETE", "COMPLETE"],
+      "oldScreenshotsPreserved": 5
+    },
+    "es-ES": {
+      "metadataVerified": true,
+      "newScreenshotStates": ["COMPLETE", "COMPLETE", "COMPLETE", "COMPLETE"],
+      "oldScreenshotsPreserved": 5
+    }
+  },
+  "appStoreBuild": "10011",
+  "appStoreSubmission": {
+    "id": "125977e6-8dc4-45b3-8a49-965ac3654bc9",
+    "state": "WAITING_FOR_REVIEW",
+    "submittedAt": "2026-10-24T18:03:00.131013+00:00",
+    "releaseType": "AFTER_APPROVAL",
+    "encryptionCheck": "Same dependencies/native/network/auth code as approved 10010 with usesNonExemptEncryption=false"
+  }
+}

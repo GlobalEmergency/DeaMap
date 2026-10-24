@@ -2,8 +2,6 @@ import React, { useCallback, useEffect, useState } from "react";
 import {
   IonPage,
   IonContent,
-  IonFab,
-  IonFabButton,
   IonIcon,
   IonModal,
   IonButton,
@@ -11,9 +9,10 @@ import {
   useIonViewDidEnter,
 } from "@ionic/react";
 import { useHistory } from "react-router-dom";
-import { locate, openOutline } from "ionicons/icons";
+import { locate, listOutline, openOutline } from "ionicons/icons";
 
 import { AedMapMarker } from "../../domain/models/Aed";
+import DiscoveryHeader from "../components/DiscoveryHeader";
 import MapView from "../components/map/MapView";
 import AedDetailSheet from "../components/AedDetailSheet";
 import { useGeolocation } from "../hooks/useGeolocation";
@@ -71,7 +70,8 @@ const MapPage: React.FC = () => {
 
   return (
     <IonPage>
-      <IonContent fullscreen scrollY={false}>
+      <DiscoveryHeader />
+      <IonContent scrollY={false}>
         {/* Absolute positioning ensures the map gets real pixel dimensions
             inside Ionic's shadow DOM scroll container */}
         <div style={{ position: "absolute", top: 0, right: 0, bottom: 0, left: 0 }}>
@@ -82,11 +82,19 @@ const MapPage: React.FC = () => {
           />
         </div>
 
-        <IonFab vertical="bottom" horizontal="end" slot="fixed" style={{ marginBottom: 60 }}>
-          <IonFabButton size="small" onClick={handleLocateMe} disabled={geoLoading}>
-            <IonIcon icon={locate} />
-          </IonFabButton>
-        </IonFab>
+        <div className="map-discovery-actions" slot="fixed">
+          <p>Encuentra un DEA cerca de ti</p>
+          <div>
+            <IonButton onClick={handleLocateMe} disabled={geoLoading}>
+              <IonIcon icon={locate} slot="start" aria-hidden="true" />
+              {geoLoading ? "Buscando ubicación…" : "Cerca de mí"}
+            </IonButton>
+            <IonButton fill="outline" routerLink="/tabs/nearby">
+              <IonIcon icon={listOutline} slot="start" aria-hidden="true" />
+              Ver lista
+            </IonButton>
+          </div>
+        </div>
 
         <IonModal
           isOpen={showDetail}

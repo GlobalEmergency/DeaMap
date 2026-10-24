@@ -1,9 +1,6 @@
 import React from "react";
 import {
   IonPage,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
   IonContent,
   IonRefresher,
   IonRefresherContent,
@@ -12,9 +9,10 @@ import {
   IonLabel,
   IonThumbnail,
   IonIcon,
-  IonSpinner,
   IonNote,
   IonBadge,
+  IonButton,
+  IonSkeletonText,
 } from "@ionic/react";
 import { useHistory } from "react-router-dom";
 import { locationOutline, heartOutline, navigateOutline } from "ionicons/icons";
@@ -22,6 +20,7 @@ import { locationOutline, heartOutline, navigateOutline } from "ionicons/icons";
 import { NearbyAed } from "../../domain/models/Aed";
 import { useNearbyAeds } from "../hooks/useNearbyAeds";
 import { formatDistance } from "../utils/format";
+import DiscoveryHeader from "../components/DiscoveryHeader";
 import ScheduleBadge from "../components/ScheduleBadge";
 
 interface CenteredMessageProps {
@@ -60,21 +59,32 @@ const NearbyPage: React.FC = () => {
 
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonTitle>DEAs Cercanos</IonTitle>
-        </IonToolbar>
-      </IonHeader>
-      <IonContent>
+      <DiscoveryHeader />
+      <IonContent className="nearby-content">
+        <div className="discovery-intro">
+          <span className="discovery-eyebrow">TU ENTORNO</span>
+          <h1>Desfibriladores cerca de ti</h1>
+          <p>
+            Hasta 10 resultados en un radio de 5 km. Consulta el acceso y el horario en cada ficha.
+          </p>
+        </div>
         <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
           <IonRefresherContent />
         </IonRefresher>
 
         {loading && (
-          <CenteredMessage>
-            <IonSpinner name="crescent" />
-            <IonNote>Buscando DEAs cercanos...</IonNote>
-          </CenteredMessage>
+          <div
+            className="nearby-skeleton"
+            role="status"
+            aria-label="Buscando desfibriladores cercanos"
+          >
+            {[0, 1, 2].map((index) => (
+              <div key={index}>
+                <IonSkeletonText animated style={{ width: "70%", height: 20 }} />
+                <IonSkeletonText animated style={{ width: "90%", height: 14 }} />
+              </div>
+            ))}
+          </div>
         )}
 
         {locationDenied && !loading && (
@@ -87,13 +97,17 @@ const NearbyPage: React.FC = () => {
             <IonNote>
               Activa los permisos de ubicación para ver los desfibriladores más cercanos a ti.
             </IonNote>
+            <IonButton onClick={() => void refresh()}>Volver a intentar</IonButton>
+            <IonButton fill="clear" routerLink="/tabs/map">
+              Explorar el mapa
+            </IonButton>
           </CenteredMessage>
         )}
 
         {error && !loading && !locationDenied && (
           <CenteredMessage>
             <IonNote color="danger">{error}</IonNote>
-            <IonNote>Desliza hacia abajo para reintentar</IonNote>
+            <IonButton onClick={() => void refresh()}>Volver a intentar</IonButton>
           </CenteredMessage>
         )}
 
@@ -104,14 +118,24 @@ const NearbyPage: React.FC = () => {
               style={{ fontSize: 64, color: "var(--ion-color-medium)" }}
             />
             <h2 style={{ margin: 0, fontSize: 18 }}>No se encontraron DEAs</h2>
-            <IonNote>No hay desfibriladores registrados cerca de tu ubicación.</IonNote>
+            <IonNote>
+              No hay desfibriladores registrados en este radio. Puedes explorar otras zonas en el
+              mapa.
+            </IonNote>
+            <IonButton routerLink="/tabs/map">Explorar el mapa</IonButton>
           </CenteredMessage>
         )}
 
-        {!loading && aeds.length > 0 && (
-          <IonList>
+        {!loading && !error && !locationDenied && aeds.length > 0 && (
+          <IonList className="nearby-results">
             {aeds.map((aed) => (
-              <IonItem key={aed.id} button onClick={() => handleTap(aed)} detail>
+              <IonItem
+                className="nearby-result"
+                key={aed.id}
+                button
+                onClick={() => handleTap(aed)}
+                detail
+              >
                 <IonThumbnail slot="start">
                   {aed.images && aed.images.length > 0 ? (
                     <img
@@ -158,7 +182,7 @@ const NearbyPage: React.FC = () => {
                     <ScheduleBadge schedule={aed.schedule} />
                   </div>
                 </IonLabel>
-                <div slot="end" style={{ textAlign: "center", minWidth: 60 }}>
+                <div slot="end" className="nearby-distance">
                   <IonIcon
                     icon={navigateOutline}
                     style={{ fontSize: 16, color: "var(--ion-color-primary)" }}
@@ -166,6 +190,7 @@ const NearbyPage: React.FC = () => {
                   <div style={{ fontSize: 13, fontWeight: 600, color: "var(--ion-color-primary)" }}>
                     {formatDistance(aed.distance)}
                   </div>
+                  <small>de ti</small>
                 </div>
               </IonItem>
             ))}

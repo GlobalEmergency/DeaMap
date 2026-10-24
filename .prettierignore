@@ -8,6 +8,9 @@ node_modules
 out
 dist
 build
+mobile/android/app/src/main/assets
+mobile/ios/App/App/public
+mobile/ios/App/App/capacitor.config.json
 
 # Misc
 .DS_Store

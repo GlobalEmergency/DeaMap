@@ -36,9 +36,11 @@ export function useNearbyAeds(radius = 5, limit = 20): UseNearbyAedsResult {
           limit
         );
         if (mountedRef.current) setAeds(data);
-      } catch (err) {
+      } catch {
         if (mountedRef.current) {
-          setError(err instanceof Error ? err.message : "Error cargando DEAs cercanos");
+          setError(
+            "No hemos podido cargar los desfibriladores. Comprueba tu conexión y vuelve a intentarlo."
+          );
         }
       } finally {
         if (mountedRef.current) {
@@ -51,6 +53,9 @@ export function useNearbyAeds(radius = 5, limit = 20): UseNearbyAedsResult {
   );
 
   const initLocation = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    setLocationDenied(false);
     try {
       const hasPermission = await geolocationService.checkPermission();
       if (!hasPermission) {

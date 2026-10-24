@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>DeaMap · Revisión de fichas y materiales</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: #eff5f1;
+        color: #173c2c;
+        font-family: system-ui, sans-serif;
+        line-height: 1.5;
+      }
+      main {
+        max-width: 1180px;
+        margin: auto;
+        padding: 48px 24px;
+      }
+      header {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        font-size: 20px;
+        font-weight: 750;
+      }
+      header img {
+        width: 46px;
+        border-radius: 12px;
+      }
+      h1 {
+        font-size: clamp(32px, 5vw, 62px);
+        line-height: 1.06;
+        letter-spacing: -0.035em;
+        max-width: 850px;
+        margin: 50px 0 20px;
+      }
+      p {
+        max-width: 760px;
+        color: #3a5e4b;
+      }
+      .tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 30px 0 42px;
+      }
+      .tags span {
+        padding: 8px 13px;
+        border: 1px solid #b6cfbf;
+        border-radius: 99px;
+        font-size: 13px;
+      }
+      .images {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 18px;
+        margin: 28px 0 56px;
+      }
+      .images img {
+        width: 100%;
+        border-radius: 12px;
+        box-shadow: 0 6px 18px #173c2c15;
+      }
+      video {
+        width: 100%;
+        border-radius: 16px;
+        background: #163c2c;
+      }
+      .feature {
+        max-width: 700px;
+        width: 100%;
+        border-radius: 12px;
+      }
+      h2 {
+        font-size: 26px;
+        margin-top: 45px;
+      }
+      a {
+        color: #1d6743;
+        text-underline-offset: 4px;
+      }
+      nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin: 22px 0;
+      }
+      .note {
+        font-size: 14px;
+        max-width: 850px;
+        margin-top: 40px;
+        padding-top: 25px;
+        border-top: 1px solid #b6cfbf;
+      }
+      @media (max-width: 720px) {
+        .images {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          scroll-behavior: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <img src="/favicon-96x96.png" alt="" />DeaMap
+        <span style="font-size: 13px; font-weight: 500">Materiales para revisar · 1.0.11</span>
+      </header>
+      <h1>Un DEA cerca de ti.<br />Una forma más clara de encontrarlo.</h1>
+      <p>
+        Interfaz móvil renovada, textos de búsqueda y una campaña visual que muestra el mapa, los
+        resultados cercanos y los datos de acceso.
+      </p>
+      <div class="tags">
+        <span>Desfibrilador cerca de mí</span><span>DEA más cercano</span
+        ><span>Localizador DEA</span><span>Mapa de desfibriladores</span
+        ><span>Ubicación y acceso</span>
+      </div>
+      <div class="images">
+        <a href="es/android/01-descubrimiento.png?revision=2"
+          ><img
+            src="es/android/01-descubrimiento.png?revision=2"
+            alt="Localiza un DEA en el mapa" /></a
+        ><a href="es/android/02-descubrimiento.png?revision=2"
+          ><img
+            src="es/android/02-descubrimiento.png?revision=2"
+            alt="Compara los DEAs cercanos" /></a
+        ><a href="es/android/03-descubrimiento.png?revision=2"
+          ><img
+            src="es/android/03-descubrimiento.png?revision=2"
+            alt="Consulta la ficha de un DEA" /></a
+        ><a href="es/android/04-descubrimiento.png?revision=2"
+          ><img src="es/android/04-descubrimiento.png?revision=2" alt="Consulta el acceso al DEA"
+        /></a>
+      </div>
+      <h2>Estado de las tiendas</h2>
+      <p>
+        Google Play: versión 1.0.11 enviada a producción con textos en español e inglés, ocho
+        capturas Android y dos gráficas nuevas. Apple: versión 1.0.11 con el binario 10011, textos y
+        ocho capturas nuevas en espera de revisión; publicación automática tras aprobación. La
+        disponibilidad pública depende de la revisión y propagación de cada tienda.
+      </p>
+      <nav><a href="07-publication-status.json">Ver estado comprobado</a></nav>
+      <h2>Vídeo promocional · 20 segundos</h2>
+      <video controls playsinline preload="metadata" poster="es/02-video-poster.png?revision=2">
+        <source src="es/03-deamap-presentacion.mp4?revision=2" type="video/mp4" />
+        <track kind="captions" src="es/05-presentacion.vtt" srclang="es" label="Español" default />
+      </video>
+      <nav>
+        <a href="es/03-deamap-presentacion.mp4?revision=2">Descargar horizontal</a
+        ><a href="es/04-deamap-vertical.mp4?revision=2">Descargar vertical</a
+        ><a href="../01-store-listings.json">Revisar textos de las tiendas</a
+        ><a href="06-media-manifest.json">Formatos y estado de publicación</a>
+      </nav>
+      <h2>Gráfica principal para Google Play</h2>
+      <img
+        class="feature"
+        src="es/01-feature-graphic.png?revision=2"
+        alt="Gráfica de DeaMap para Google Play"
+      />
+      <nav>
+        <a href="es/ios/01-descubrimiento.png?revision=2">Formato de iPhone</a
+        ><a href="en/android/01-discovery.png?revision=2">Campaña en inglés</a
+        ><a href="en/01-feature-graphic.png?revision=2">Gráfica en inglés</a>
+      </nav>
+      <p class="note">
+        Las pantallas se han capturado en la WebView compilada, con coordenadas de prueba de Madrid
+        y datos públicos reales. Queda contrastar la apariencia en cada plataforma antes de publicar
+        las capturas. La campaña en inglés mantiene la interfaz real en español. El vídeo es un
+        montaje promocional: Google Play necesita su URL de YouTube y Apple requiere una grabación
+        nativa para el App Preview. Los nuevos términos son objetivos de búsqueda, no posiciones
+        garantizadas.
+      </p>
+    </main>
+  </body>
+</html>

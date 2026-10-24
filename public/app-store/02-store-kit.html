@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>DeaMap · Piezas de tienda</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background: #edf4ef;
+        color: #143c2a;
+        font-family: Arial, Helvetica, sans-serif;
+      }
+      #piece {
+        position: relative;
+        overflow: hidden;
+        width: 1080px;
+        height: 1920px;
+        padding: 80px 76px;
+        background: #edf4ef;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        font-size: 34px;
+        font-weight: 700;
+      }
+      .brand img {
+        width: 64px;
+        height: 64px;
+        border-radius: 14px;
+      }
+      .step {
+        position: absolute;
+        right: 76px;
+        top: 96px;
+        font-size: 23px;
+        letter-spacing: 0.08em;
+        color: #40604d;
+      }
+      h1 {
+        font-size: 100px;
+        line-height: 1.02;
+        letter-spacing: -4px;
+        margin: 65px 0 22px;
+        max-width: 900px;
+        font-weight: 750;
+      }
+      p {
+        font-size: 34px;
+        line-height: 1.3;
+        margin: 0;
+        max-width: 850px;
+        color: #365e47;
+      }
+      .screen {
+        position: absolute;
+        top: 570px;
+        bottom: 60px;
+        left: 50%;
+        transform: translateX(-50%);
+        height: 1280px;
+        width: 576px;
+        max-height: calc(100% - 635px);
+        object-fit: contain;
+        border: 8px solid #173e2c;
+        border-radius: 32px;
+        background: #f8fbf9;
+        box-shadow: 0 18px 36px #173e2c25;
+      }
+      .foot {
+        position: absolute;
+        bottom: 26px;
+        left: 76px;
+        right: 76px;
+        font-size: 20px;
+        display: flex;
+        justify-content: space-between;
+        color: #40604d;
+      }
+      .dark {
+        background: #174c34 !important;
+        color: #f0f7f1;
+      }
+      .dark p,
+      .dark .step,
+      .dark .foot {
+        color: #c9e3d2;
+      }
+      .ios h1 {
+        font-size: 132px;
+        letter-spacing: -5px;
+        margin-top: 90px;
+      }
+      .ios p {
+        font-size: 45px;
+      }
+      .ios .screen {
+        top: 750px;
+        height: 2010px;
+        width: 904px;
+        max-height: calc(100% - 850px);
+      }
+      .ios .brand {
+        font-size: 44px;
+      }
+      .ios .brand img {
+        width: 82px;
+        height: 82px;
+      }
+      .ios .step {
+        font-size: 28px;
+      }
+      .wide {
+        padding: 95px 110px !important;
+      }
+      .wide h1 {
+        width: 990px;
+        max-width: 55%;
+        font-size: 116px;
+        margin-top: 110px;
+      }
+      .wide p {
+        max-width: 54%;
+        font-size: 42px;
+      }
+      .wide .screen {
+        top: 35px;
+        bottom: 35px;
+        left: auto;
+        right: 110px;
+        transform: none;
+        height: 1010px;
+        width: 455px;
+        max-height: none;
+      }
+      .wide .foot {
+        left: 110px;
+        right: 110px;
+        bottom: 44px;
+        font-size: 27px;
+      }
+      .feature {
+        padding: 48px 54px !important;
+      }
+      .feature h1 {
+        font-size: 66px;
+        max-width: 65%;
+        width: 600px;
+        letter-spacing: -2px;
+        margin: 42px 0 20px;
+      }
+      .feature p {
+        max-width: 62%;
+        font-size: 23px;
+      }
+      .feature .brand {
+        font-size: 23px;
+      }
+      .feature .brand img {
+        width: 42px;
+        height: 42px;
+      }
+      .feature .step {
+        display: none;
+      }
+      .feature .screen {
+        left: auto;
+        right: 40px;
+        top: 25px;
+        bottom: 25px;
+        transform: none;
+        width: 203px;
+        height: 450px;
+        max-height: none;
+        border-width: 4px;
+        border-radius: 14px;
+      }
+      .feature .foot {
+        display: none;
+      }
+      .wide .foot span:last-child,
+      .wide .step {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <main id="piece">
+      <div class="brand"><img src="/favicon-96x96.png" alt="" /><span>DeaMap</span></div>
+      <div class="step" id="step"></div>
+      <h1 id="title"></h1>
+      <p id="subtitle"></p>
+      <img id="screen" class="screen" alt="Captura de la app DeaMap" />
+      <div class="foot"><span>deamap.es</span><span id="foot"></span></div>
+    </main>
+    <script>
+      const params = new URLSearchParams(location.search);
+      const lang = params.get("lang") === "en" ? "en" : "es";
+      document.documentElement.lang = lang;
+      const slides = {
+        es: [
+          ["Un DEA cerca de ti.", "Localiza desfibriladores en el mapa.", "01-map-current.png"],
+          [
+            "Compara los más cercanos.",
+            "Distancia y ubicación, de un vistazo.",
+            "02-nearby-current.png",
+          ],
+          [
+            "Saber dónde está no basta.",
+            "Consulta el acceso y el horario disponible.",
+            "03-detail-current.png",
+          ],
+          [
+            "Llega al acceso correcto.",
+            "Consulta las indicaciones de entrada.",
+            "04-access-current.png",
+          ],
+        ],
+        en: [
+          ["An AED near you.", "Find defibrillators on the map.", "01-map-current.png"],
+          [
+            "Compare nearby AEDs.",
+            "Check distance and location at a glance.",
+            "02-nearby-current.png",
+          ],
+          [
+            "More than a location.",
+            "Check available access details and hours.",
+            "03-detail-current.png",
+          ],
+          [
+            "Find the right entrance.",
+            "Check the available access instructions.",
+            "04-access-current.png",
+          ],
+        ],
+      };
+      const format = params.get("format") || "android";
+      const index = Math.min(3, Math.max(0, Number(params.get("slide") || 0)));
+      const slide = slides[lang][index];
+      const box = document.getElementById("piece");
+      const sizes = {
+        android: [1080, 1920],
+        ios: [1320, 2868],
+        video: [1920, 1080],
+        feature: [1024, 500],
+      };
+      const size = sizes[format] || sizes.android;
+      box.style.width = size[0] + "px";
+      box.style.height = size[1] + "px";
+      if (format === "ios") box.classList.add("ios");
+      if (format === "video") box.classList.add("wide");
+      if (format === "feature") box.classList.add("feature");
+      if (index === 2) box.classList.add("dark");
+      document.getElementById("step").textContent = String(index + 1).padStart(2, "0") + " / 04";
+      document.getElementById("title").textContent = slide[0];
+      document.getElementById("subtitle").textContent = slide[1];
+      document.getElementById("foot").textContent =
+        lang === "es" ? "Ubicación · Acceso · Cómo llegar" : "Location · Access · Directions";
+      document.getElementById("screen").src = "/app-store/source/" + slide[2] + "?capture=4";
+    </script>
+  </body>
+</html>

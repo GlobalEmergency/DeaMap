@@ -22,3 +22,149 @@ http://ionicframework.com/docs/theming/ */
 .leaflet-tile {
   image-rendering: -webkit-optimize-contrast;
 }
+
+/* Discovery uses the existing DeaMap green and native light/dark surfaces. */
+:root {
+  --ion-color-primary: #247f52;
+  --ion-color-primary-rgb: 36, 127, 82;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #207048;
+  --ion-color-primary-tint: #3a8c63;
+}
+
+.discovery-header ion-toolbar {
+  --min-height: 72px;
+}
+.discovery-header ion-title {
+  padding-inline: 16px;
+}
+.discovery-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 20px;
+  font-weight: 750;
+}
+.discovery-brand img {
+  border-radius: 8px;
+}
+.discovery-brand small {
+  display: block;
+  font-size: 11px;
+  font-weight: 500;
+  margin-top: 3px;
+  color: var(--ion-color-medium-shade);
+}
+.discovery-header ion-button {
+  min-height: 44px;
+  font-weight: 700;
+  margin-right: 12px;
+}
+.map-discovery-actions {
+  position: absolute;
+  bottom: 16px;
+  left: 12px;
+  right: 12px;
+  z-index: 500;
+  background: var(--ion-background-color, #f8faf9);
+  border: 1px solid var(--ion-color-step-150, #dde7e1);
+  border-radius: 18px;
+  padding: 12px;
+  box-shadow: 0 6px 18px rgba(18, 48, 34, 0.16);
+}
+.map-discovery-actions p {
+  margin: 0 4px 8px;
+  font-size: 15px;
+  font-weight: 650;
+}
+.map-discovery-actions > div {
+  display: flex;
+  gap: 8px;
+}
+.map-discovery-actions ion-button {
+  flex: 1;
+  margin: 0;
+  min-height: 48px;
+  --border-radius: 11px;
+  font-size: 14px;
+}
+.discovery-intro {
+  padding: 28px 20px 20px;
+}
+.discovery-eyebrow {
+  color: var(--ion-color-primary);
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 0.12em;
+}
+.discovery-intro h1 {
+  font-size: 27px;
+  line-height: 1.15;
+  font-weight: 750;
+  margin: 10px 0;
+  max-width: 22ch;
+}
+.discovery-intro p {
+  color: var(--ion-color-medium-shade);
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0;
+  max-width: 56ch;
+}
+.nearby-results {
+  padding: 0 8px 24px;
+}
+.nearby-result {
+  --padding-start: 12px;
+  --inner-padding-end: 8px;
+  --min-height: 108px;
+}
+.nearby-result ion-label h2 {
+  line-height: 1.35;
+  white-space: normal;
+}
+.nearby-result ion-label p {
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: normal;
+  margin-top: 5px;
+}
+.nearby-distance {
+  text-align: center;
+  min-width: 54px;
+  margin-left: 8px;
+}
+.nearby-distance small {
+  display: block;
+  font-size: 11px;
+  color: var(--ion-color-medium-shade);
+  margin-top: 2px;
+}
+.nearby-skeleton {
+  padding: 0 20px;
+}
+.nearby-skeleton > div {
+  padding: 24px 0;
+}
+:focus-visible {
+  outline: 3px solid var(--ion-color-primary);
+  outline-offset: 3px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ion-color-primary: #73d6a0;
+    --ion-color-primary-rgb: 115, 214, 160;
+    --ion-color-primary-contrast: #102c20;
+    --ion-color-primary-contrast-rgb: 16, 44, 32;
+    --ion-color-primary-shade: #65bc8d;
+    --ion-color-primary-tint: #81daaa;
+  }
+}
+
+.discovery-brand small,
+.discovery-intro p,
+.nearby-distance small {
+  color: var(--ion-text-color);
+  opacity: 0.76;
+}

@@ -15,7 +15,7 @@ const deaIcon = L.divIcon({
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    background: #247f52;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -35,7 +35,13 @@ const DeaMarker: React.FC<DeaMarkerProps> = React.memo(({ aed, onSelect, isSelec
   const eventHandlers = useMemo(() => ({ click: () => onSelect(aed) }), [aed, onSelect]);
 
   return (
-    <Marker position={[aed.latitude, aed.longitude]} icon={deaIcon} eventHandlers={eventHandlers}>
+    <Marker
+      position={[aed.latitude, aed.longitude]}
+      icon={deaIcon}
+      title={aed.name}
+      alt={`Desfibrilador: ${aed.name}`}
+      eventHandlers={eventHandlers}
+    >
       {isSelected && (
         <Popup>
           <strong>{aed.name}</strong>
