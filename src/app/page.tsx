@@ -17,6 +17,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 
 import AedDetailModal from "@/components/AedDetailModal";
+import JsonLd from "@/components/JsonLd";
 import {
   AppDownloadPrompt,
   AppDownloadSection,
@@ -580,7 +581,7 @@ export default function Home() {
               </div>
               <h2 className="text-4xl font-bold text-gray-900 mb-4">Sobre DeaMap</h2>
               <p className="text-xl text-gray-600">
-                El mapa colaborativo de desfibriladores más completo de España
+                Encuentra desfibriladores cercanos en el mapa colaborativo de España
               </p>
             </div>
 
@@ -650,6 +651,7 @@ export default function Home() {
           </section>
 
           {/* App Download Banner */}
+          <JsonLd />
           <AppDownloadSection />
 
           {/* Stats Section */}

@@ -1,51 +1,98 @@
-=============================================
- APP STORE - METADATA PARA DEAMAP
- iOS App Store Connect
-=============================================
+DEAMAP — METADATOS DE TIENDAS
 
-TEXTO PROMOCIONAL (max 170 caracteres):
-Encuentra el desfibrilador más cercano en segundos. Mapa colaborativo con miles de DEAs verificados en España. ¡Cada segundo cuenta!
+Fuente única: /app-store/01-store-listings.json
+Idiomas: es-ES y en-US. Prioridad: usuarios y descargas en España.
 
-DESCRIPCIÓN (max 4000 caracteres):
-DeaMap es la aplicación gratuita que te ayuda a localizar desfibriladores externos automáticos (DEA) cerca de ti. En una emergencia cardíaca, cada segundo cuenta. Con DeaMap, encontrar el DEA más cercano es rápido y sencillo.
+VISTA PREVIA LOCAL (sin credenciales ni cambios externos)
+python scripts/store/fill_google_play_metadata.py
+python scripts/store/fill_appstore_metadata.py
 
-FUNCIONES PRINCIPALES
+Los scripts validan los límites de cada campo antes de acceder a las APIs.
+Para aplicar los textos revisados, añadir --apply y cargar las credenciales
+desde el vault en el entorno del proceso. No guardar claves en el repositorio.
+Google Play requiere GOOGLE_APPLICATION_CREDENTIALS apuntando a un archivo
+seguro temporal de la cuenta de servicio. Eliminarlo tras su uso.
+También admite apply_listings(service, listings) con el cliente autenticado
+en memoria. Cuenta autorizada verificada: claude-access, en las entradas
+del vault Google Analytics Service Account y Google SA Private Key (full).
+Apple requiere APP_STORE_PRIVATE_KEY, APP_STORE_KEY_ID y APP_STORE_ISSUER_ID.
 
-• Mapa interactivo: Visualiza todos los desfibriladores disponibles en tu zona con un mapa actualizado en tiempo real. Busca por dirección o usa tu ubicación GPS para encontrar el más cercano.
+Google Play valida el edit antes de publicar los textos y no modifica tracks.
+Conserva otros campos de ficha y se detiene si hay una revisión en curso.
+Apple solo modifica una versión editable existente, sin crear una versión,
+seleccionar un binario, enviar a revisión ni publicar la aplicación.
+Si Apple falla tras una escritura, comprobar el borrador: su API no es atómica.
 
-• Información detallada: Consulta la dirección exacta, horario de acceso, instrucciones para llegar, teléfono de contacto y fecha de última verificación de cada DEA.
+MENSAJES PARA CAPTURAS (usar pantallas reales de la versión publicada)
+1. Localiza desfibriladores cerca de ti — mapa y búsqueda GPS.
+2. Consulta cómo acceder — ficha con ubicación y horario, si existen.
+3. Encuentra cómo llegar — acceso a indicaciones de navegación.
+4. Ayuda a ampliar el mapa — formulario de alta de un DEA.
+No anunciar modo sin conexión, disponibilidad garantizada ni verificación
+universal sin comprobar esas capacidades en la versión publicada.
 
-• Navegación directa: Obtén indicaciones para llegar al desfibrilador con un solo toque. También puedes llamar al 112 directamente desde la app.
+DIFUSIÓN Y MEDICIÓN
+Página de descarga: https://deamap.es/app
+Usar esa URL en perfiles, materiales y códigos QR.
+Añadir utm_source, utm_medium y utm_campaign por canal, sin datos personales.
+Comparar 28 días previos y posteriores a la publicación, separando web y tiendas.
+Web: clics orgánicos y CTR en Search Console; visitas a /app y clics de tienda.
+Los botones de tienda usan el evento external_link existente de la web.
+Tiendas: visitantes de ficha, instalaciones y conversión por país e idioma.
+Un clic a tienda no equivale a una instalación; usar los informes de las tiendas.
+No atribuir mejoras de ranking sin datos ni prometer una posición concreta.
 
-• Colabora y salva vidas: Añade nuevos desfibriladores al mapa con un formulario sencillo. Tu contribución ayuda a que más personas puedan encontrar un DEA cuando lo necesitan.
+PRÓXIMAS ACCIONES DE DIFUSIÓN (requieren publicación o contacto)
+Actualizar los enlaces de perfiles de Global Emergency a /app.
+Proponer colaboración a Protección Civil, ayuntamientos y entidades formadoras
+para completar sus DEAs y enlazar al directorio de su zona.
+Preparar un QR para carteles junto a los DEAs con enlace al mapa o a /app.
+Solicitar reseñas de forma voluntaria y sin incentivos fuera de una emergencia.
+Probar una variante de capturas cada vez y medir conversión antes de extenderla.
 
-• Gestión para organizaciones: Si formas parte de Protección Civil, una empresa certificada o cualquier entidad que gestione DEAs, DeaMap te ofrece un panel de control completo para gestionar tus desfibriladores, verificar su estado y coordinar a tu equipo.
+REFERENCIAS OFICIALES CONSULTADAS EL 24/10/2026
+https://support.google.com/googleplay/android-developer/answer/9859152
+https://support.google.com/googleplay/android-developer/answer/9898842
+https://developer.apple.com/app-store/product-page/
+https://developer.apple.com/help/app-store-connect/reference/app-information/app-information
 
-• Importación masiva: Las organizaciones pueden importar sus inventarios de DEAs mediante archivos CSV, con validación automática y mapeo de columnas.
 
-• Datos verificados: Cada DEA puede ser verificado por los responsables, garantizando que la información esté siempre actualizada y sea fiable.
+AMPLIACIÓN VISUAL Y ASO — 24/10/2026
+Revisión visual: /app-store/2026-kit/00-review.html
+Manifiesto de medios: /app-store/2026-kit/06-media-manifest.json
+16 composiciones PNG (ES/EN, 1080x1920 y 1320x2868), 2 gráficas 1024x500.
+2 montajes promocionales de 20 segundos: horizontal 1920x1080 y vertical 1080x1920.
+Capturas de la interfaz compilada 1.0.11; ubicación de prueba de Madrid y DEAs públicos.
+No se ha accedido a la ubicación personal del usuario.
+La campaña inglesa conserva la interfaz real en español.
+Comprobar en dispositivos nativos antes de publicar la nueva app.
+Apple requiere vídeo capturado en dispositivo para el App Preview; los montajes
+promocionales entregados no se presentan como grabaciones nativas.
+Google Play utiliza una URL de YouTube para el vídeo; no hay publicación automática.
+Términos añadidos o reforzados: desfibrilador cerca de ti, DEA más cercano,
+localizador, mapa de desfibriladores, proximidad, acceso, horarios y emergencia.
+Son objetivos de búsqueda pertinentes; no se ha atribuido volumen ni ranking sin datos.
 
-POR QUÉ DEAMAP
+REFERENCIAS VISUALES OFICIALES
+https://support.google.com/googleplay/android-developer/answer/9866151
+https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications
+https://developer.apple.com/app-store/app-previews/
 
-La muerte súbita cardíaca es una de las principales causas de fallecimiento en España. Un desfibrilador aplicado en los primeros minutos puede multiplicar por 10 las posibilidades de supervivencia. Sin embargo, muchas personas no saben dónde encontrar el DEA más cercano.
 
-DeaMap nace del proyecto Global Emergency con la misión de crear el mapa colaborativo de desfibriladores más completo de España, con el objetivo de expandirse a toda Europa.
-
-La aplicación es completamente gratuita, sin publicidad y sin necesidad de registro para buscar desfibriladores.
-
-Descarga DeaMap y ayúdanos a salvar vidas.
-
-PALABRAS CLAVE (max 100 caracteres):
-desfibrilador,DEA,AED,emergencia,cardíaca,mapa,salvar vidas,primeros auxilios,112,España,salud
-
-URL DE SOPORTE:
-https://www.globalemergency.online/proyectos/deamap
-
-URL DE MARKETING:
-https://www.deamap.es
-
-VERSIÓN:
-2.0.0
-
-COPYRIGHT:
-© 2026 Global Emergency. Todos los derechos reservados.
+ESTADO VERIFICADO DE TIENDAS
+Apple: borrador iOS 1.0.11 en PREPARE_FOR_SUBMISSION.
+Textos actualizados en es-ES y en-US.
+8 capturas JPEG nuevas con estado COMPLETE, cuatro por idioma.
+Las cinco capturas previas de cada idioma se han conservado.
+No se ha solicitado revisión ni distribución; no se ha asociado un nuevo binario.
+Google Play: acceso confirmado con la cuenta claude-access del vault.
+Textos es-ES y en-US aplicados con commit y verificados mediante la API.
+Título ES: DeaMap: Desfibriladores DEA.
+Se conservan las versiones y los tracks; producción continúa en 1.0.10.
+La ficha pública española todavía muestra los textos anteriores; los nuevos
+están guardados en la API, pendientes de revisión o propagación de Google.
+Las 8 capturas y 2 gráficas nuevas se subieron en un edit temporal de Google Play,
+se verificaron por SHA-256 y superaron edits.validate. Después se descartó el edit.
+Los archivos quedan preparados para la interfaz 1.0.11; aún no publicados.
+La ficha previa se conserva en 2026-kit/08-google-play-before.json.
+Recibo de verificación sin secretos: 2026-kit/07-publication-status.json.

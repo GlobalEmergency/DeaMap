@@ -1,0 +1,64 @@
+{
+  "listings": {
+    "kind": "androidpublisher#listingsListResponse",
+    "listings": [
+      {
+        "language": "es-ES",
+        "title": "DeaMap - Desfibriladores",
+        "fullDescription": "DeaMap te ayuda a localizar el desfibrilador (DEA) más cercano en caso de emergencia. Cada segundo cuenta ante una parada cardíaca: con DeaMap puedes encontrar y navegar hasta el DEA más próximo de forma rápida y sencilla.\n\n❤️ LOCALIZACIÓN DE DESFIBRILADORES:\n• Mapa interactivo con todos los DEA registrados\n• Búsqueda por proximidad usando tu ubicación GPS\n• Navegación integrada hasta el desfibrilador seleccionado\n• Información detallada: horario, accesibilidad, estado\n• Fotografías del DEA y su ubicación exacta\n\n👥 COMUNIDAD Y VERIFICACIÓN:\n• Registra nuevos desfibriladores que encuentres\n• Verifica y actualiza la información de DEAs existentes\n• Reporta incidencias (DEA faltante, averiado, reubicado)\n• Sistema de verificación comunitaria para datos fiables\n\n🏢 GESTIÓN PARA ORGANIZACIONES:\n• Panel de administración para gestionar flotas de DEAs\n• Control de estado, mantenimiento y caducidad de parches\n• Importación masiva de DEAs vía CSV\n• Asignación de responsables y alertas de mantenimiento\n\n⭐ CARACTERÍSTICAS:\n• Interfaz sencilla pensada para situaciones de emergencia\n• Funciona con y sin conexión (caché de DEAs cercanos)\n• Datos verificados por la comunidad sanitaria\n• Actualización continua de la base de datos\n• Gratuita y sin publicidad\n• Respetuosa con tu privacidad: no recopilamos datos personales\n\nDesarrollada por Global Emergency.\n\nAVISO: Esta aplicación es una herramienta de apoyo. Ante una emergencia, llama siempre al 112.",
+        "shortDescription": "Encuentra el desfibrilador más cercano en segundos. Cada segundo cuenta."
+      },
+      {
+        "language": "en-US",
+        "title": "DeaMap - Defibrillators",
+        "fullDescription": "DeaMap helps you locate the nearest defibrillator (AED) in an emergency. Every second counts during cardiac arrest: with DeaMap you can quickly find and navigate to the closest AED.\n\n❤️ AED LOCATION:\n• Interactive map with all registered AEDs\n• Proximity search using your GPS location\n• Built-in navigation to the selected defibrillator\n• Detailed AED info: hours, accessibility, status\n• Photos of the AED and its exact location\n\n👥 COMMUNITY & VERIFICATION:\n• Register new defibrillators you find\n• Verify and update existing AED information\n• Report issues (missing, broken, relocated AEDs)\n• Community verification system for reliable data\n\n🏢 ORGANIZATION MANAGEMENT:\n• Admin dashboard to manage AED fleets\n• Status tracking, maintenance and pad expiry control\n• Bulk AED import via CSV\n• Assign managers and maintenance alerts\n\n⭐ HIGHLIGHTS:\n• Simple interface designed for emergency situations\n• Works online and offline (nearby AED caching)\n• Data verified by the healthcare community\n• Continuously updated database\n• Free with no ads\n• Privacy-friendly: we do not collect personal data\n\nDeveloped by Global Emergency.\n\nDISCLAIMER: This app is a support tool. In an emergency, always call your local emergency number.",
+        "shortDescription": "Find the nearest defibrillator in seconds. Every second counts."
+      }
+    ]
+  },
+  "tracks": {
+    "kind": "androidpublisher#tracksListResponse",
+    "tracks": [
+      {
+        "track": "production",
+        "releases": [
+          {
+            "name": "1.0.10",
+            "versionCodes": ["10010"],
+            "status": "completed"
+          }
+        ]
+      },
+      {
+        "track": "beta",
+        "releases": [
+          {
+            "name": "10006 (1.0.6)",
+            "versionCodes": ["10006"],
+            "status": "completed"
+          }
+        ]
+      },
+      {
+        "track": "alpha",
+        "releases": [
+          {
+            "name": "10006 (1.0.6)",
+            "versionCodes": ["10006"],
+            "status": "completed"
+          }
+        ]
+      },
+      {
+        "track": "internal",
+        "releases": [
+          {
+            "name": "1.0.10",
+            "versionCodes": ["10010"],
+            "status": "completed"
+          }
+        ]
+      }
+    ]
+  }
+}

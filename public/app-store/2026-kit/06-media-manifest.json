@@ -1,0 +1,49 @@
+{
+  "app": "DeaMap",
+  "mobileVersion": "1.0.11",
+  "createdAt": "2026-10-24",
+  "captureSource": "Compiled mobile WebView, fixed public Madrid coordinates, public AED records",
+  "nativeDeviceVerification": "pending",
+  "interfaceLanguage": "es",
+  "campaignLanguages": ["es", "en"],
+  "screenshots": {
+    "android": {
+      "size": [1080, 1920],
+      "filesPerLanguage": 4
+    },
+    "ios": {
+      "size": [1320, 2868],
+      "filesPerLanguage": 4,
+      "formats": ["PNG review master", "JPEG upload copy"]
+    }
+  },
+  "featureGraphic": {
+    "size": [1024, 500],
+    "filesPerLanguage": 1
+  },
+  "videos": [
+    {
+      "path": "es/03-deamap-presentacion.mp4",
+      "size": [1920, 1080],
+      "durationSeconds": 20,
+      "usage": "Web and YouTube promotional montage"
+    },
+    {
+      "path": "es/04-deamap-vertical.mp4",
+      "size": [1080, 1920],
+      "durationSeconds": 20,
+      "usage": "Social media and vertical promotion"
+    }
+  ],
+  "appleAppPreview": {
+    "status": "Native footage required",
+    "reason": "Apple requires footage captured on device; these promotional montages are not presented as native App Previews"
+  },
+  "googlePlayVideo": {
+    "status": "YouTube URL required before adding to the store",
+    "note": "Publishing to YouTube is a separate action; no YouTube account or upload is assumed"
+  },
+  "textSource": "../01-store-listings.json",
+  "appleDraftVersion": "1.0.11",
+  "googlePlayAccess": "403; authorized DeaMap publisher account required"
+}

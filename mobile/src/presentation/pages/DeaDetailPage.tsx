@@ -120,6 +120,9 @@ function AccessPointCard({ ap }: { ap: AedAccessPoint }) {
             background: isRestricted
               ? "var(--ion-color-warning-tint)"
               : "var(--ion-color-success-tint)",
+            color: isRestricted
+              ? "var(--ion-color-warning-contrast)"
+              : "var(--ion-color-success-contrast)",
             marginBottom: 8,
             fontSize: 13,
           }}
@@ -136,7 +139,15 @@ function AccessPointCard({ ap }: { ap: AedAccessPoint }) {
 
         {/* Route info */}
         {(ap.estimated_minutes != null || ap.floor_difference != null) && (
-          <div style={{ display: "flex", gap: 12, marginBottom: 8, fontSize: 13, color: "#555" }}>
+          <div
+            style={{
+              display: "flex",
+              gap: 12,
+              marginBottom: 8,
+              fontSize: 13,
+              color: "var(--ion-text-color)",
+            }}
+          >
             {ap.estimated_minutes != null && <span>~{ap.estimated_minutes} min</span>}
             {ap.floor_difference != null && ap.floor_difference !== 0 && (
               <span style={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -164,7 +175,7 @@ function AccessPointCard({ ap }: { ap: AedAccessPoint }) {
               margin: "0 0 8px 0",
               paddingLeft: 20,
               fontSize: 13,
-              color: "#333",
+              color: "var(--ion-text-color)",
               lineHeight: 1.6,
             }}
           >

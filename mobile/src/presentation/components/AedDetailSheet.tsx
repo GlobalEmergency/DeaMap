@@ -167,7 +167,9 @@ const AedDetailSheet: React.FC<AedDetailSheetProps> = ({ aedId, name }) => {
             )}
           </span>
           {primaryAccess.estimated_minutes != null && (
-            <span style={{ color: "#666" }}>~{primaryAccess.estimated_minutes} min</span>
+            <span style={{ color: "var(--ion-text-color)" }}>
+              ~{primaryAccess.estimated_minutes} min
+            </span>
           )}
         </div>
       )}

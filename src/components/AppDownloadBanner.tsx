@@ -5,9 +5,7 @@ import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useAnalytics } from "@/hooks/useAnalytics";
-
-const PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=es.deamap.mobile";
-const APP_STORE_URL = "https://apps.apple.com/us/app/deamap-desfibriladores/id6760004634";
+import { APP_STORE_URL, PLAY_STORE_URL } from "@/lib/app-stores";
 
 function useDevicePlatform() {
   const [platform, setPlatform] = useState<"ios" | "android" | "desktop">("desktop");
@@ -407,7 +405,7 @@ export function AppDownloadSection() {
                 </li>
                 <li className="flex items-center gap-2 justify-center md:justify-start">
                   <span className="w-1.5 h-1.5 bg-green-400 rounded-full" />
-                  Funciona sin conexion
+                  Consulta ubicación y horarios disponibles
                 </li>
               </ul>
 

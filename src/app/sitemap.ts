@@ -18,6 +18,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = "https://deamap.es";
 
   const staticPages: MetadataRoute.Sitemap = [
+    { url: `${baseUrl}/app`, changeFrequency: "monthly", priority: 0.9 },
+    ...GUIDE_SLUGS.map((slug) => ({
+      url: `${baseUrl}/guia/${slug}`,
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+    })),
     { url: baseUrl, lastModified: new Date(), changeFrequency: "daily", priority: 1 },
     {
       url: `${baseUrl}/locations`,
@@ -89,12 +95,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // City pages — deduplicate by URL
     const cityPages: MetadataRoute.Sitemap = [];
     const seenCityUrls = new Set<string>();
-    const budget =
-      MAX_SITEMAP_URLS -
-      staticPages.length -
-      countryPages.length -
-      regionPages.length -
-      GUIDE_SLUGS.length;
+    const budget = MAX_SITEMAP_URLS - staticPages.length - countryPages.length - regionPages.length;
 
     for (const { country_code, city_name, admin_level_1, ine_code } of cities) {
       if (cityPages.length >= budget) break;
@@ -115,15 +116,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       });
     }
 
-    // Guide pages
-    const guidePages: MetadataRoute.Sitemap = GUIDE_SLUGS.map((slug) => ({
-      url: `${baseUrl}/guia/${slug}`,
-      lastModified: new Date(),
-      changeFrequency: "monthly" as const,
-      priority: 0.7,
-    }));
-
-    return [...staticPages, ...countryPages, ...regionPages, ...cityPages, ...guidePages];
+    return [...staticPages, ...countryPages, ...regionPages, ...cityPages];
   } catch (err) {
     console.error("[sitemap] Failed to generate dynamic pages:", err);
     return staticPages;

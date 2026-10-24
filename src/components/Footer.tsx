@@ -52,6 +52,15 @@ export default function Footer() {
             <ul className="space-y-2 text-sm">
               <li>
                 <Link
+                  href="/app"
+                  className="text-gray-300 hover:text-white transition-colors"
+                  onClick={() => trackNavClick("Descargar DeaMap (footer)", "/app")}
+                >
+                  Descargar DeaMap para Android y iPhone
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/locations"
                   className="text-gray-300 hover:text-white transition-colors inline-flex items-center gap-1"
                   onClick={() => trackNavClick("Desfibriladores por ciudad (footer)", "/locations")}
