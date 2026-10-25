@@ -228,6 +228,7 @@ export function AppDownloadPrompt({
 
             {/* CTA button */}
             <a
+              data-download-placement={`prompt_${context}`}
               href={storeUrl}
               target="_blank"
               rel="noopener noreferrer"
@@ -342,6 +343,7 @@ export function AppSmartBanner() {
 
           {/* CTA button */}
           <a
+            data-download-placement="smart_banner"
             href={storeUrl}
             target="_blank"
             rel="noopener noreferrer"
@@ -412,6 +414,7 @@ export function AppDownloadSection() {
               {/* Store badges */}
               <div className="flex flex-wrap items-center gap-4 justify-center md:justify-start">
                 <a
+                  data-download-placement="app_section"
                   href={APP_STORE_URL}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -423,6 +426,7 @@ export function AppDownloadSection() {
                   <AppStoreBadge />
                 </a>
                 <a
+                  data-download-placement="app_section"
                   href={PLAY_STORE_URL}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -475,6 +479,7 @@ export function AppStoreFooterLinks() {
       <p className="text-gray-300 text-sm mb-3">Descarga DeaMap gratis</p>
       <div className="flex flex-col gap-2">
         <a
+          data-download-placement="footer"
           href={APP_STORE_URL}
           target="_blank"
           rel="noopener noreferrer"
@@ -484,6 +489,7 @@ export function AppStoreFooterLinks() {
           <AppStoreBadge className="h-9" />
         </a>
         <a
+          data-download-placement="footer"
           href={PLAY_STORE_URL}
           target="_blank"
           rel="noopener noreferrer"

@@ -28,14 +28,19 @@ import "leaflet/dist/leaflet.css";
 /* Auth provider */
 import { AuthProvider } from "./presentation/store/AuthContext";
 import AppRouter from "./presentation/navigation/AppRouter";
+import { Capacitor } from "@capacitor/core";
+import { analytics } from "./infrastructure/di/container";
+import { AnalyticsProvider } from "./presentation/store/AnalyticsContext";
 
 setupIonicReact();
 
 const App: React.FC = () => (
   <IonApp>
-    <AuthProvider>
-      <AppRouter />
-    </AuthProvider>
+    <AnalyticsProvider analytics={analytics} available={Capacitor.isNativePlatform()}>
+      <AuthProvider>
+        <AppRouter />
+      </AuthProvider>
+    </AnalyticsProvider>
   </IonApp>
 );
 

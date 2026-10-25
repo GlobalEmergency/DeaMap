@@ -21,6 +21,7 @@ import { useHistory } from "react-router-dom";
 import { logOut, person, mail, shield, addCircleOutline, trashOutline } from "ionicons/icons";
 
 import { useAuth } from "../hooks/useAuth";
+import { useAnalytics } from "../store/AnalyticsContext";
 import { promptSaveCredentials } from "../../infrastructure/auth/CredentialService";
 
 const ROLE_LABELS: Record<string, string> = {
@@ -225,6 +226,7 @@ const AuthForm: React.FC = () => {
 /* ---------- Profile Tab Page ---------- */
 
 const ProfileTabPage: React.FC = () => {
+  const { showPreferences } = useAnalytics();
   const { user, isAuthenticated, logout, deleteAccount } = useAuth();
   const history = useHistory();
   const [presentToast] = useIonToast();
@@ -241,6 +243,9 @@ const ProfileTabPage: React.FC = () => {
         </IonHeader>
         <IonContent className="ion-padding" scrollY>
           <AuthForm />
+          <IonButton fill="clear" expand="block" onClick={showPreferences}>
+            Preferencias de analítica
+          </IonButton>
         </IonContent>
       </IonPage>
     );
@@ -383,6 +388,9 @@ const ProfileTabPage: React.FC = () => {
             },
           ]}
         />
+        <IonButton fill="clear" expand="block" onClick={showPreferences}>
+          Preferencias de analítica
+        </IonButton>
       </IonContent>
     </IonPage>
   );

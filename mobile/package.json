@@ -1,7 +1,7 @@
 {
   "name": "mobile",
   "private": true,
-  "version": "1.0.11",
+  "version": "1.0.12",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -28,6 +28,7 @@
     "assets:generate": "npx @capacitor/assets generate --android --ios --pwa"
   },
   "dependencies": {
+    "@capacitor-firebase/analytics": "8.1.0",
     "@capacitor-firebase/crashlytics": "^8.1.0",
     "@capacitor-firebase/performance": "^8.1.0",
     "@capacitor/android": "^8.1.0",

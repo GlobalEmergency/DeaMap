@@ -24,6 +24,13 @@ import { CapacitorCrashReporter } from "../firebase/CapacitorCrashReporter";
 import { CapacitorPerformanceMonitor } from "../firebase/CapacitorPerformanceMonitor";
 import { NoOpCrashReporter } from "../firebase/NoOpCrashReporter";
 import { NoOpPerformanceMonitor } from "../firebase/NoOpPerformanceMonitor";
+import type { IAnalytics } from "../../domain/ports/IAnalytics";
+import { CapacitorAnalytics } from "../firebase/CapacitorAnalytics";
+import { NoOpAnalytics } from "../firebase/NoOpAnalytics";
+
+const analytics: IAnalytics = Capacitor.isNativePlatform()
+  ? new CapacitorAnalytics()
+  : new NoOpAnalytics();
 
 // Use nullish coalescing (??) so an explicitly-empty VITE_API_BASE_URL
 // (set in .env.development) produces relative URLs routed through the Vite proxy.
@@ -56,6 +63,7 @@ const createAedUseCase = new CreateAedUseCase(aedRepository);
 const getNearbyAedsUseCase = new GetNearbyAedsUseCase(aedRepository);
 
 export {
+  analytics,
   // Infrastructure (authRepository exported for logout in AuthContext)
   httpClient,
   authRepository,

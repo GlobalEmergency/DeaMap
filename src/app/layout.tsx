@@ -1,9 +1,9 @@
-import { Analytics } from "@vercel/analytics/next";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata } from "next";
 import { Toaster } from "react-hot-toast";
 
 import Footer from "@/components/Footer";
+import AnalyticsConsent from "@/components/AnalyticsConsent";
+import AcquisitionTracking from "@/components/AcquisitionTracking";
 import { GoogleTagManagerHead, GoogleTagManagerBody } from "@/components/GoogleTagManager";
 import Navigation from "@/components/Navigation";
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -112,11 +112,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="font-sans antialiased flex flex-col min-h-screen">
         <GoogleTagManagerBody />
+        <AcquisitionTracking />
         <AuthProvider>
           <OrganizationProvider>
             <Navigation />
             <main className="flex-1">{children}</main>
             <Footer />
+            <AnalyticsConsent />
             <Toaster
               position="top-right"
               toastOptions={{
@@ -143,8 +145,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             />
           </OrganizationProvider>
         </AuthProvider>
-        <SpeedInsights />
-        <Analytics />
       </body>
     </html>
   );

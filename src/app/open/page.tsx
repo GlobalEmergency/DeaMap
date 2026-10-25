@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-
-const APP_STORE_URL = "https://apps.apple.com/us/app/deamap-desfibriladores/id6760004634";
-const PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=es.deamap.mobile";
+import OpenAppRedirect from "@/components/OpenAppRedirect";
+import { APP_STORE_URL, PLAY_STORE_URL } from "@/lib/app-stores";
 
 export const metadata: Metadata = {
   title: "Abrir DeaMap",
@@ -23,39 +22,10 @@ export const metadata: Metadata = {
  * The `source` query-param is forwarded to the app so it can be tracked.
  */
 export default function OpenPage() {
-  // Inline script runs immediately on the client to redirect ASAP.
-  const redirectScript = `
-(function() {
-  var params = new URLSearchParams(window.location.search);
-  var source = params.get('source') || 'direct';
-
-  var ua = navigator.userAgent || '';
-  var isIOS = /iPhone|iPad|iPod/i.test(ua);
-  var isAndroid = /Android/i.test(ua);
-
-  if (isAndroid) {
-    // Intent URL: opens the app if installed, otherwise does nothing.
-    var intentUrl = 'intent://open?source=' + encodeURIComponent(source)
-      + '#Intent;scheme=deamap;package=es.deamap.mobile;end';
-    window.location.href = intentUrl;
-
-    // Fallback: if the app didn't open, redirect to Play Store after 1.5s
-    setTimeout(function() {
-      window.location.href = '${PLAY_STORE_URL}';
-    }, 1500);
-  } else if (isIOS) {
-    // On iOS, if we reach this page it means Universal Links didn't
-    // intercept (app not installed). Redirect to App Store.
-    window.location.href = '${APP_STORE_URL}';
-  }
-  // Desktop: page renders with manual links (no auto-redirect).
-})();
-`;
-
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] px-4 text-center">
       {/* Inline redirect script — runs before React hydration */}
-      <script dangerouslySetInnerHTML={{ __html: redirectScript }} />
+      <OpenAppRedirect />
 
       {/* Visible fallback for desktop or slow connections */}
       <img
