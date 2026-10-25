@@ -143,7 +143,7 @@ jobs:
               '\nPROVISIONING_PROFILE = "' + process.env.PROVISIONING_PROFILE_UUID + '";');
             if (signed === source) throw new Error('App signing settings not found');
             fs.writeFileSync(path, signed);
-            NODE
+          NODE
             xcodebuild archive \
               -project ios/App/App.xcodeproj \
               -scheme App \
