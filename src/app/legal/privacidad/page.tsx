@@ -13,9 +13,34 @@ export default function PrivacyPolicyPage() {
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-sm p-6 sm:p-10">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Política de Privacidad</h1>
-        <p className="text-sm text-gray-500 mb-8">Última actualización: 4 de marzo de 2026</p>
+        <p className="text-sm text-gray-500 mb-8">Última actualización: 25 de octubre de 2026</p>
 
         <div className="prose prose-gray max-w-none space-y-6 text-gray-700 text-sm leading-relaxed">
+          <section>
+            <h2 className="text-xl font-semibold text-gray-900 mt-8 mb-3">
+              Analítica opcional en web y app
+            </h2>
+            <p>
+              Solo si aceptas, utilizamos Google Analytics (Firebase en Android e iOS) para medir el
+              origen de las visitas, los clics hacia las tiendas, las pantallas utilizadas y el
+              primer uso medido. En la web también se activan las métricas de Vercel con esa
+              elección. El mapa funciona sin aceptar. Puedes cambiar la elección desde «Preferencias
+              de analítica», al pie de la web o en el perfil de la app.
+            </p>
+            <p>
+              Los eventos de uso no incluyen tus direcciones, búsquedas libres, ubicación precisa,
+              correo ni nombre. No utilizamos identificadores publicitarios para esta medición.
+              Google Analytics utiliza identificadores de instalación o navegador cuando aceptas; no
+              intentamos emparejar personas entre la web y las tiendas.
+            </p>
+            <p>
+              Los enlaces a las tiendas pueden incorporar etiquetas generales de canal (por ejemplo
+              Google o redes sociales) tras aceptar la analítica. Google Play y App Store Connect
+              elaboran sus propios informes de adquisición, sujetos a sus políticas y umbrales. La
+              elección se conserva en el dispositivo hasta que la cambies; revocarla detiene los
+              nuevos eventos.
+            </p>
+          </section>
           <section>
             <h2 className="text-xl font-semibold text-gray-900 mt-8 mb-3">
               1. Responsable del tratamiento
@@ -135,7 +160,8 @@ export default function PrivacyPolicyPage() {
             <ul className="list-disc pl-5 space-y-1 mt-2">
               <li>
                 <strong>Proveedores de servicios:</strong> servicios de alojamiento (Vercel), base
-                de datos y analítica necesarios para el funcionamiento de la plataforma.
+                de datos necesarios para el funcionamiento, y analítica opcional con tu
+                consentimiento.
               </li>
               <li>
                 <strong>Organismos públicos:</strong> cuando sea requerido por ley o para proteger

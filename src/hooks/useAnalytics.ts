@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
+import { readAnalyticsConsent } from "@/lib/analytics-consent";
 
 declare global {
   interface Window {
@@ -17,6 +18,7 @@ declare global {
  */
 function isGtagAvailable(): boolean {
   if (typeof window === "undefined") return false;
+  if (readAnalyticsConsent() !== "granted") return false;
 
   // Check if gtag exists and is a function
   if (typeof window.gtag !== "function") return false;
@@ -146,11 +148,10 @@ export function useAnalytics() {
   );
 
   const trackMarkerClick = useCallback(
-    (deaId: string, deaName: string) => {
+    (deaId: string, _deaName: string) => {
       trackEvent({
         action: "marker_click",
         category: AnalyticsCategory.MAP,
-        label: deaName,
         dea_id: deaId,
       });
     },
@@ -162,23 +163,21 @@ export function useAnalytics() {
   // =====================
 
   const trackSearch = useCallback(
-    (searchType: "address" | "geolocation", query?: string) => {
+    (searchType: "address" | "geolocation", _query?: string) => {
       trackEvent({
         action: "search",
         category: AnalyticsCategory.SEARCH,
         label: searchType,
-        search_query: query,
       });
     },
     [trackEvent]
   );
 
   const trackSearchSuggestionClick = useCallback(
-    (suggestionIndex: number, suggestionText: string) => {
+    (suggestionIndex: number, _suggestionText: string) => {
       trackEvent({
         action: "search_suggestion_click",
         category: AnalyticsCategory.SEARCH,
-        label: suggestionText,
         value: suggestionIndex,
       });
     },
@@ -208,11 +207,10 @@ export function useAnalytics() {
   // =====================
 
   const trackDeaCardClick = useCallback(
-    (deaId: string, deaName: string, position: number) => {
+    (deaId: string, _deaName: string, position: number) => {
       trackEvent({
         action: "dea_card_click",
         category: AnalyticsCategory.DEA,
-        label: deaName,
         dea_id: deaId,
         position: position,
       });
@@ -221,11 +219,10 @@ export function useAnalytics() {
   );
 
   const trackDeaModalOpen = useCallback(
-    (deaId: string, deaName: string) => {
+    (deaId: string, _deaName: string) => {
       trackEvent({
         action: "dea_modal_open",
         category: AnalyticsCategory.DEA,
-        label: deaName,
         dea_id: deaId,
       });
     },
@@ -258,13 +255,12 @@ export function useAnalytics() {
   );
 
   const trackDeaPhoneClick = useCallback(
-    (deaId: string, phoneNumber: string) => {
+    (deaId: string, _phoneNumber: string) => {
       trackEvent({
         action: "dea_phone_click",
         category: AnalyticsCategory.DEA,
         label: "phone_call",
         dea_id: deaId,
-        phone_number: phoneNumber,
       });
     },
     [trackEvent]
@@ -286,12 +282,11 @@ export function useAnalytics() {
   );
 
   const trackAuthSubmit = useCallback(
-    (authType: "login" | "register", success: boolean, errorMessage?: string) => {
+    (authType: "login" | "register", success: boolean, _errorMessage?: string) => {
       trackEvent({
         action: `auth_${authType}_submit`,
         category: AnalyticsCategory.AUTH,
         label: success ? "success" : "error",
-        error_message: errorMessage,
       });
     },
     [trackEvent]
@@ -326,13 +321,12 @@ export function useAnalytics() {
   );
 
   const trackFormSubmit = useCallback(
-    (formName: string, success: boolean, errorMessage?: string) => {
+    (formName: string, success: boolean, _errorMessage?: string) => {
       trackEvent({
         action: "form_submit",
         category: AnalyticsCategory.FORM,
         label: formName,
         success: success,
-        error_message: errorMessage,
       });
     },
     [trackEvent]

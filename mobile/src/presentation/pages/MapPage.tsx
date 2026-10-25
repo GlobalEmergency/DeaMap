@@ -16,8 +16,10 @@ import DiscoveryHeader from "../components/DiscoveryHeader";
 import MapView from "../components/map/MapView";
 import AedDetailSheet from "../components/AedDetailSheet";
 import { useGeolocation } from "../hooks/useGeolocation";
+import { useAnalytics } from "../store/AnalyticsContext";
 
 const MapPage: React.FC = () => {
+  const { analytics } = useAnalytics();
   const [selectedAed, setSelectedAed] = useState<AedMapMarker | null>(null);
   const [showDetail, setShowDetail] = useState(false);
   const [flyToCounter, setFlyToCounter] = useState(0);
@@ -42,6 +44,7 @@ const MapPage: React.FC = () => {
   }, []);
 
   const handleLocateMe = useCallback(async () => {
+    void analytics.track("search");
     const coords = await getCurrentPosition();
     if (coords) {
       setFlyToCounter((c) => c + 1);
@@ -59,7 +62,7 @@ const MapPage: React.FC = () => {
         color: "warning",
       });
     }
-  }, [getCurrentPosition, presentToast]);
+  }, [analytics, getCurrentPosition, presentToast]);
 
   const handleViewDetail = useCallback(() => {
     if (selectedAed) {

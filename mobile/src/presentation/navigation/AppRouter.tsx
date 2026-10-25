@@ -24,6 +24,7 @@ import NewDeaPage from "../pages/NewDeaPage";
 import ProfileTabPage from "../pages/ProfileTabPage";
 import DeaDetailPage from "../pages/DeaDetailPage";
 import AuthGuard from "../components/AuthGuard";
+import AnalyticsObserver from "./AnalyticsObserver";
 
 const AppRouter: React.FC = () => {
   const { isLoading } = useAuth();
@@ -53,6 +54,7 @@ const AppRouter: React.FC = () => {
 
   return (
     <IonReactRouter>
+      <AnalyticsObserver />
       <IonRouterOutlet>
         {/* Standalone routes (no tab bar) */}
         <Route exact path="/login" component={LoginPage} />
