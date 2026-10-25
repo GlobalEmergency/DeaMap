@@ -1,5 +1,6 @@
 export const CONSENT_KEY = "deamap-analytics-consent-v1";
 export const CONSENT_EVENT = "deamap-analytics-consent";
+export const WEB_MEASUREMENT_ID = "G-2T0E7S05N5";
 export type AnalyticsConsent = "granted" | "denied";
 let pageConsent: AnalyticsConsent | null = null;
 
@@ -44,7 +45,7 @@ export function saveAnalyticsConsent(value: AnalyticsConsent): boolean {
   }
   const choices = readSavedChoices();
   const persisted = choices.length > 0 && choices.every((choice) => choice === value);
-  Reflect.set(window, "ga-disable-G-2T0E7S05N5", value === "denied");
+  Reflect.set(window, `ga-disable-${WEB_MEASUREMENT_ID}`, value === "denied");
   try {
     window.gtag?.("consent", "update", {
       analytics_storage: value,

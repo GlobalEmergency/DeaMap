@@ -55,6 +55,7 @@ describe("store acquisition tracking", () => {
       "event",
       "app_store_click",
       expect.objectContaining({
+        send_to: "G-2T0E7S05N5",
         target_store: "android",
         placement: "footer",
         acquisition_source: "google",

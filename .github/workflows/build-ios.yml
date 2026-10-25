@@ -131,17 +131,25 @@ jobs:
           # Determine signing style based on whether secrets are available
           if [ -n "$IOS_CERTIFICATE_P12_BASE64" ]; then
             echo "Using manual signing with distribution certificate"
+            # Scope signing to App; Swift package resource bundles cannot use a profile.
+            node <<'NODE'
+            const fs = require('fs');
+            const path = 'ios/App/App.xcodeproj/project.pbxproj';
+            const source = fs.readFileSync(path, 'utf8');
+            const signed = source.replace(/CODE_SIGN_STYLE = Automatic;/g,
+              'CODE_SIGN_STYLE = Manual;' +
+              '\nCODE_SIGN_IDENTITY = "Apple Distribution";' +
+              '\nDEVELOPMENT_TEAM = "' + process.env.IOS_TEAM_ID + '";' +
+              '\nPROVISIONING_PROFILE = "' + process.env.PROVISIONING_PROFILE_UUID + '";');
+            if (signed === source) throw new Error('App signing settings not found');
+            fs.writeFileSync(path, signed);
+            NODE
             xcodebuild archive \
               -project ios/App/App.xcodeproj \
               -scheme App \
               -archivePath "$RUNNER_TEMP/App.xcarchive" \
               -destination "generic/platform=iOS" \
               -clonedSourcePackagesDirPath "$RUNNER_TEMP/spm-cache" \
-              CODE_SIGN_STYLE=Manual \
-              CODE_SIGN_IDENTITY="Apple Distribution" \
-              DEVELOPMENT_TEAM="$IOS_TEAM_ID" \
-              PROVISIONING_PROFILE_SPECIFIER="" \
-              PROVISIONING_PROFILE="$PROVISIONING_PROFILE_UUID" \
               OTHER_CODE_SIGN_FLAGS="--keychain $KEYCHAIN_PATH" \
               -allowProvisioningUpdates
           else
@@ -184,7 +192,7 @@ jobs:
             <key>uploadSymbols</key>
             <true/>
             <key>destination</key>
-            <string>upload</string>
+            <string>export</string>
           </dict>
           </plist>
           EOF

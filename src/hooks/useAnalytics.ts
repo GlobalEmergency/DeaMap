@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
-import { readAnalyticsConsent } from "@/lib/analytics-consent";
+import { WEB_MEASUREMENT_ID, readAnalyticsConsent } from "@/lib/analytics-consent";
 
 declare global {
   interface Window {
@@ -91,6 +91,7 @@ export function useAnalytics() {
         event_label: label,
         value: value,
         ...additionalParams,
+        send_to: WEB_MEASUREMENT_ID,
       });
     } catch {
       // Silently fail - don't break the app if GA throws
@@ -507,6 +508,7 @@ export function trackEventDirect(event: AnalyticsEvent) {
       event_label: label,
       value: value,
       ...additionalParams,
+      send_to: WEB_MEASUREMENT_ID,
     });
   } catch {
     // Silently fail

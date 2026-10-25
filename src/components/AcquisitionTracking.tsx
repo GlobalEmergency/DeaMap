@@ -7,7 +7,7 @@ import {
   buildStoreUrl,
   getStorePlatform,
 } from "../../shared/acquisition";
-import { CONSENT_EVENT, readAnalyticsConsent } from "@/lib/analytics-consent";
+import { CONSENT_EVENT, WEB_MEASUREMENT_ID, readAnalyticsConsent } from "@/lib/analytics-consent";
 import { clearWebAcquisition, getWebAcquisition } from "@/lib/web-acquisition";
 
 export default function AcquisitionTracking() {
@@ -50,6 +50,7 @@ export default function AcquisitionTracking() {
       anchor.href = buildStoreUrl(platform, campaign, placement, APPLE_PROVIDER_TOKEN);
       try {
         window.gtag?.("event", "app_store_click", {
+          send_to: WEB_MEASUREMENT_ID,
           target_store: platform,
           placement,
           acquisition_source: campaign.source,

@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { APPLE_PROVIDER_TOKEN, STORE_URLS, buildStoreUrl } from "../../shared/acquisition";
-import { readAnalyticsConsent } from "@/lib/analytics-consent";
+import { WEB_MEASUREMENT_ID, readAnalyticsConsent } from "@/lib/analytics-consent";
 import { getWebAcquisition } from "@/lib/web-acquisition";
 
 export default function OpenAppRedirect() {
@@ -15,6 +15,7 @@ export default function OpenAppRedirect() {
       try {
         if (currentCampaign)
           window.gtag?.("event", "app_store_click", {
+            send_to: WEB_MEASUREMENT_ID,
             target_store: platform,
             placement: "open_redirect",
             interaction_type: "automatic",
