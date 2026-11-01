@@ -4,6 +4,10 @@
 
 DeaMap (https://deamap.es) is a collaborative platform to locate Automated External Defibrillators (AEDs/DEAs). It provides an interactive map with primary coverage in Spain and growing international presence. Coverage and equipment availability may be incomplete; listed data is not a real-time guarantee. Download links for Android and iPhone are available at https://deamap.es/app.
 
+## Contribute and share DeaMap
+
+https://deamap.es/colabora explains how to add a missing AED, update information with the appropriate web permissions, and share the project. The public web form at https://deamap.es/dea/new-simple accepts contributions without an account; the mobile app requires sign-in. New entries are reviewed before publication. Existing records can be edited by authorized managers and verifiers from the web. Visitors without editing permissions should contact the team rather than create a duplicate. The sharing page includes 20-second horizontal/vertical videos, a 10-second vertical video, Spanish captions, social copy, and a downloadable kit. Videos use demonstration data.
+
 ## What is an AED/DEA?
 
 An Automated External Defibrillator (AED), known as DEA (Desfibrilador Externo Automático) in Spanish, is a portable device that delivers an electric shock to restore normal heart rhythm during sudden cardiac arrest. AEDs are designed for use by non-medical personnel and provide step-by-step voice instructions. Using an AED within the first few minutes of cardiac arrest can increase survival rates by up to 70%.

@@ -52,6 +52,15 @@ export default function Footer() {
             <ul className="space-y-2 text-sm">
               <li>
                 <Link
+                  href="/colabora"
+                  className="text-gray-300 hover:text-white transition-colors"
+                  onClick={() => trackNavClick("Colabora y comparte DeaMap (footer)", "/colabora")}
+                >
+                  Añade, actualiza y comparte DeaMap
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/app"
                   className="text-gray-300 hover:text-white transition-colors"
                   onClick={() => trackNavClick("Descargar DeaMap (footer)", "/app")}

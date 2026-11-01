@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { AppDownloadSection } from "@/components/AppDownloadBanner";
+import { CollaborationVideo } from "@/components/CollaborationResources";
 import { APP_STORE_URL, PLAY_STORE_URL } from "@/lib/app-stores";
 import { safeJsonLd } from "@/lib/json-ld";
 
@@ -114,29 +115,25 @@ export default function AppPage() {
         <AppDownloadSection />
       </div>
       <section className="max-w-5xl mx-auto px-4 py-12">
-        <h2 className="text-2xl font-bold text-gray-900">Así encontrarás un desfibrilador</h2>
+        <h2 className="text-2xl font-bold text-gray-900">Encuentra, añade y actualiza</h2>
         <p className="mt-3 mb-8 text-gray-700 max-w-2xl">
-          Explora el mapa, compara los DEAs cercanos y consulta su ficha antes de abrir las
-          indicaciones. Las imágenes muestran un ejemplo de búsqueda en Madrid.
+          Explora el mapa, aporta equipos que falten y descubre cómo los gestores y verificadores
+          con permisos actualizan las fichas desde la web. El vídeo utiliza datos de demostración.
         </p>
-        <video
-          controls
-          playsInline
-          preload="none"
-          poster="/app-store/2026-kit/es/02-video-poster.png"
+        <CollaborationVideo
+          file="01-video-horizontal.mp4"
+          captions="04-subtitulos.vtt"
+          id="app_horizontal_20"
+          label="DeaMap: encuentra, añade y actualiza en 20 segundos"
+          poster="/colabora/2026-11/06-portada.png"
           className="w-full rounded-xl bg-gray-900"
-          aria-label="Presentación de DeaMap: mapa, desfibriladores cercanos y datos de acceso"
+        />
+        <Link
+          href="/colabora"
+          className="mt-5 inline-block font-semibold text-blue-700 underline underline-offset-4"
         >
-          <source src="/app-store/2026-kit/es/03-deamap-presentacion.mp4" type="video/mp4" />
-          <track
-            kind="captions"
-            src="/app-store/2026-kit/es/05-presentacion.vtt"
-            srcLang="es"
-            label="Español"
-            default
-          />
-          Tu navegador no permite reproducir este vídeo.
-        </video>
+          Cómo añadir o actualizar un DEA y compartir el proyecto
+        </Link>
         <div className="grid gap-8 sm:grid-cols-3 mt-10">
           {[
             ["01-map-current.png", "1. Explora el mapa de DEAs"],

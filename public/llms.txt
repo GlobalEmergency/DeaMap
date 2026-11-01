@@ -24,6 +24,7 @@ DeaMap provides a free, public REST API for querying AED locations:
 
 ## Content Pages
 
+- [Add or update an AED and share DeaMap](https://deamap.es/colabora) — Contribution steps, authorized web editing, videos and a downloadable sharing kit. Web additions can be submitted without an account; app additions require sign-in. New entries are reviewed before publication.
 - [Defibrillator Directory](https://deamap.es/locations) — Browse by country, region, and city
 - [Defibrillators in Spain](https://deamap.es/locations/spain) — All autonomous communities
 - [What is an AED?](https://deamap.es/guia/que-es-un-dea)
