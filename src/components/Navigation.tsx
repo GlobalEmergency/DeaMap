@@ -13,6 +13,7 @@ import {
   Settings,
   Building2,
   FileUp,
+  HeartHandshake,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -69,6 +70,7 @@ export default function Navigation() {
   const allNavLinks = [
     { href: "/", label: "DEAs", icon: Home, visible: true },
     { href: "/dea/new-simple", label: "Agregar DEA", icon: PlusCircle, visible: true },
+    { href: "/colabora", label: "Colabora", icon: HeartHandshake, visible: true },
     {
       href: "/admin/imports",
       label: "Importar",

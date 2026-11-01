@@ -18,6 +18,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = "https://deamap.es";
 
   const staticPages: MetadataRoute.Sitemap = [
+    {
+      url: `${baseUrl}/colabora`,
+      lastModified: new Date("2026-11-01"),
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
     { url: `${baseUrl}/app`, changeFrequency: "monthly", priority: 0.9 },
     ...GUIDE_SLUGS.map((slug) => ({
       url: `${baseUrl}/guia/${slug}`,
