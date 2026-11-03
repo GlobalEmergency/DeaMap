@@ -91,10 +91,12 @@ function setOutput(key, value) {
 
 /**
  * Busca en qué track está un versionCode.
- * Devuelve el nombre del track o null si no se encontró.
+ * Devuelve { track, release } o null si no se encontró. Mira primero el track
+ * destino: una versión ya publicada ahí no debe confundirse con su copia en internal.
  */
-async function findVersionOnTracks(client, editId, versionCode) {
-  for (const trackName of TRACKS) {
+async function findVersionOnTracks(client, editId, versionCode, targetTrack) {
+  const tracks = [targetTrack, ...TRACKS.filter((t) => t !== targetTrack)];
+  for (const trackName of tracks) {
     try {
       const { data: track } = await client.edits.tracks.get({
         packageName: PACKAGE_NAME,
@@ -109,10 +111,8 @@ async function findVersionOnTracks(client, editId, versionCode) {
         }
       }
     } catch (err) {
-      // Track puede no existir o estar vacío, continuar
-      if (err.code !== 404) {
-        console.warn(`  Advertencia consultando track ${trackName}: ${err.message}`);
-      }
+      // Un track sin releases da 404; cualquier otro error decidiría mal la acción
+      if (err.code !== 404) throw err;
     }
   }
   return null;
@@ -157,7 +157,7 @@ async function runCheck(client, versionCode, targetTrack) {
   const { data: edit } = await client.edits.insert({ packageName: PACKAGE_NAME });
 
   try {
-    const found = await findVersionOnTracks(client, edit.id, versionCode);
+    const found = await findVersionOnTracks(client, edit.id, versionCode, targetTrack);
 
     if (!found) {
       console.log(`\n  Versión no encontrada en ningún track → se necesita build completo`);
@@ -166,9 +166,11 @@ async function runCheck(client, versionCode, targetTrack) {
       return;
     }
 
-    console.log(`\n  Versión encontrada en track: ${found.track}`);
+    console.log(`\n  Versión encontrada en track: ${found.track} (${found.release.status})`);
 
-    if (found.track === targetTrack) {
+    // Un release en borrador, detenido o a medio despliegue no está publicado:
+    // promoverlo sobre el mismo track lo deja en completed.
+    if (found.track === targetTrack && found.release.status === "completed") {
       console.log(`  Ya está en el track destino → skip`);
       setOutput("action", "skip");
       setOutput("source_track", found.track);
@@ -207,8 +209,8 @@ async function runPromote(client, versionCode, fromTrack, toTrack) {
     );
 
     if (!sourceRelease) {
-      console.error(`  Error: versionCode ${versionCode} no encontrado en track ${fromTrack}`);
-      process.exit(1);
+      // throw (no process.exit) para que el catch descarte el edit
+      throw new Error(`versionCode ${versionCode} no encontrado en track ${fromTrack}`);
     }
 
     console.log(`  Release encontrado en ${fromTrack}: status=${sourceRelease.status}`);

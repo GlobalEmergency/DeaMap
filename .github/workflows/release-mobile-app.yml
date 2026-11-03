@@ -11,7 +11,7 @@ on:
         type: boolean
         default: true
       deploy_ios:
-        description: "Deploy to TestFlight"
+        description: "Upload to TestFlight and submit for App Store review"
         required: false
         type: boolean
         default: true
@@ -24,11 +24,16 @@ on:
           - alpha
           - beta
           - production
-        default: internal
+        default: production
 
 # Minimal top-level permissions — jobs override as needed
 permissions:
   contents: read
+
+# Two runs of the same version would both check the stores before either uploads
+concurrency:
+  group: release-mobile-app
+  cancel-in-progress: false
 
 env:
   NODE_VERSION: "22"
@@ -36,7 +41,7 @@ env:
 
 jobs:
   # ──────────────────────────────────────────────────────────────
-  # 1. Prepare — extract version + build number
+  # 1. Prepare — extract version + build number + Android track
   # ──────────────────────────────────────────────────────────────
   prepare:
     name: Prepare Release
@@ -48,6 +53,8 @@ jobs:
     outputs:
       version: ${{ steps.version.outputs.version }}
       build_number: ${{ steps.version.outputs.build_number }}
+      # A published GitHub Release has no inputs: it goes to production too
+      android_track: ${{ github.event.inputs.android_track || 'production' }}
 
     steps:
       - name: Checkout repository
@@ -103,7 +110,7 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Install googleapis
-        run: npm install googleapis
+        run: npm install --no-save --ignore-scripts googleapis
 
       - name: Check version on Play Store
         id: check
@@ -114,7 +121,7 @@ jobs:
         run: |
           node .github/scripts/google-play-version.mjs check \
             --version-code ${{ needs.prepare.outputs.build_number }} \
-            --target-track ${{ github.event.inputs.android_track || 'internal' }}
+            --target-track ${{ needs.prepare.outputs.android_track }}
 
   # ──────────────────────────────────────────────────────────────
   # 3a. Build Android (when version not on Play Store yet)
@@ -215,7 +222,7 @@ jobs:
           serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
           packageName: es.deamap.mobile
           releaseFiles: mobile/android/app/build/outputs/bundle/release/*.aab
-          track: ${{ github.event.inputs.android_track || 'internal' }}
+          track: ${{ needs.prepare.outputs.android_track }}
           status: completed
           whatsNewDirectory: ./mobile/whatsnew
 
@@ -238,7 +245,13 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Install googleapis
-        run: npm install googleapis
+        run: npm install --no-save --ignore-scripts googleapis
+
+      - name: Generate release notes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_BODY: ${{ github.event.release.body || '' }}
+        run: bash .github/scripts/generate-whatsnew.sh ./mobile/whatsnew
 
       - name: Promote version on Play Store
         env:
@@ -249,19 +262,49 @@ jobs:
           node .github/scripts/google-play-version.mjs promote \
             --version-code ${{ needs.prepare.outputs.build_number }} \
             --from-track ${{ needs.check-play-store.outputs.source_track }} \
-            --to-track ${{ github.event.inputs.android_track || 'internal' }}
+            --to-track ${{ needs.prepare.outputs.android_track }}
 
   # ──────────────────────────────────────────────────────────────
-  # 4. Build iOS (when deploying to TestFlight)
+  # 4a. Check App Store Connect — a build number can only be uploaded once
   # ──────────────────────────────────────────────────────────────
-  build-ios:
-    name: Build iOS
+  check-app-store:
+    name: Check App Store
     needs: prepare
-    runs-on: macos-15
-    timeout-minutes: 60
+    runs-on: ubuntu-latest
     if: |
       github.event_name == 'release' ||
       (github.event_name == 'workflow_dispatch' && github.event.inputs.deploy_ios == 'true')
+    outputs:
+      uploaded: ${{ steps.check.outputs.uploaded }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Check whether the build is already uploaded
+        id: check
+        env:
+          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          APP_STORE_CONNECT_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY_BASE64: ${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}
+          APP_VERSION: ${{ needs.prepare.outputs.version }}
+          BUILD_NUMBER: ${{ needs.prepare.outputs.build_number }}
+        run: node .github/scripts/app-store-submit.mjs check
+
+  # ──────────────────────────────────────────────────────────────
+  # 4b. Build iOS and upload to TestFlight (when not uploaded yet)
+  # ──────────────────────────────────────────────────────────────
+  build-ios:
+    name: Build iOS
+    needs: [prepare, check-app-store]
+    runs-on: macos-15
+    timeout-minutes: 60
+    if: needs.check-app-store.outputs.uploaded == 'false'
 
     steps:
       - name: Checkout repository
@@ -459,11 +502,19 @@ jobs:
           echo "$APP_STORE_CONNECT_API_KEY_BASE64" | base64 --decode \
             > "private_keys/AuthKey_${APP_STORE_CONNECT_API_KEY_ID}.p8"
 
+          set -o pipefail
           xcrun altool --upload-app \
             --type ios \
             --file "${{ steps.ipa_info.outputs.ipa_path }}" \
             --apiKey "$APP_STORE_CONNECT_API_KEY_ID" \
-            --apiIssuer "$APP_STORE_CONNECT_API_ISSUER_ID"
+            --apiIssuer "$APP_STORE_CONNECT_API_ISSUER_ID" 2>&1 | tee "$RUNNER_TEMP/altool.log"
+
+          # altool can exit 0 when App Store Connect rejects the package (a
+          # green run that uploaded nothing): its output is the real signal.
+          if grep -Eq 'UPLOAD FAILED|ERROR ITMS-|\*\*\* Error' "$RUNNER_TEMP/altool.log"; then
+            echo "::error::altool reported an upload error - see the log above"
+            exit 1
+          fi
 
       - name: Cleanup keychain
         if: always()
@@ -471,6 +522,42 @@ jobs:
           if [ -n "$KEYCHAIN_PATH" ] && [ -f "$KEYCHAIN_PATH" ]; then
             security delete-keychain "$KEYCHAIN_PATH" || true
           fi
+
+  # ──────────────────────────────────────────────────────────────
+  # 4c. Submit for App Store review (fresh upload or already in App Store Connect)
+  # ──────────────────────────────────────────────────────────────
+  ios-submit:
+    name: Submit iOS for review
+    needs: [prepare, check-app-store, build-ios]
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    # !cancelled(): build-ios is skipped (not failed) when the build was already uploaded
+    if: ${{ !cancelled() && needs.check-app-store.result == 'success' && (needs.build-ios.result == 'success' || needs.check-app-store.outputs.uploaded == 'true') }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Generate release notes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_BODY: ${{ github.event.release.body || '' }}
+        run: bash .github/scripts/generate-whatsnew.sh ./mobile/whatsnew
+
+      - name: Submit version for review
+        env:
+          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          APP_STORE_CONNECT_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY_BASE64: ${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}
+          APP_VERSION: ${{ needs.prepare.outputs.version }}
+          BUILD_NUMBER: ${{ needs.prepare.outputs.build_number }}
+          RELEASE_NOTES_FILE: mobile/whatsnew/whatsnew-es-ES
+        run: node .github/scripts/app-store-submit.mjs
 
   # ──────────────────────────────────────────────────────────────
   # 5a. Create GitHub Release (for workflow_dispatch only)
@@ -540,18 +627,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           TAG="mobile@${{ needs.prepare.outputs.version }}"
-          # Upload all artifacts found
-          FILES=""
-          if [ -d ./android ]; then
-            for f in ./android/*; do
-              [ -f "$f" ] && FILES="$FILES $f"
-            done
-          fi
-          if [ -d ./ios ]; then
-            for f in ./ios/*; do
-              [ -f "$f" ] && FILES="$FILES $f"
-            done
-          fi
+          # Upload all artifacts found (the Android artifact keeps its apk/ and bundle/ subfolders)
+          FILES=$(find ./android ./ios -type f 2>/dev/null | tr '\n' ' ')
           if [ -n "$FILES" ]; then
             echo "📦 Uploading artifacts to release $TAG"
             gh release upload "$TAG" $FILES --clobber
@@ -571,7 +648,9 @@ jobs:
         check-play-store,
         build-android,
         promote-android,
+        check-app-store,
         build-ios,
+        ios-submit,
         create-release,
         upload-release-artifacts,
       ]
@@ -585,7 +664,7 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Version:** ${{ needs.prepare.outputs.version }}" >> $GITHUB_STEP_SUMMARY
           echo "**Build Number:** ${{ needs.prepare.outputs.build_number }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Target Track:** ${{ github.event.inputs.android_track || 'internal' }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Android Track:** ${{ needs.prepare.outputs.android_track }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
           # Android action taken
@@ -619,7 +698,8 @@ jobs:
           echo "| Platform | Status | Action |" >> $GITHUB_STEP_SUMMARY
           echo "|----------|--------|--------|" >> $GITHUB_STEP_SUMMARY
           echo "| Android | $ANDROID_STATUS | $ANDROID_ACTION |" >> $GITHUB_STEP_SUMMARY
-          echo "| iOS | ${{ needs.build-ios.result == 'success' && '✅' || needs.build-ios.result == 'skipped' && '⏭️' || '❌' }} | ${{ needs.build-ios.result == 'success' && 'TestFlight' || '-' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| iOS (TestFlight) | ${{ needs.build-ios.result == 'success' && '✅' || needs.build-ios.result == 'skipped' && '⏭️' || '❌' }} | ${{ needs.check-app-store.outputs.uploaded == 'true' && 'Already uploaded' || needs.build-ios.result == 'success' && 'Build + Upload' || '-' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| iOS (App Store review) | ${{ needs.ios-submit.result == 'success' && '✅' || needs.ios-submit.result == 'skipped' && '⏭️' || '❌' }} | ${{ needs.ios-submit.result == 'success' && 'Submitted' || '-' }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
           # GitHub Release status
