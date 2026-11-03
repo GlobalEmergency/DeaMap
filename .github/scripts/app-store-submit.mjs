@@ -32,7 +32,8 @@
  *   BUNDLE_ID            optional, default es.deamap.mobile
  *   APP_VERSION          1.2.3 (CFBundleShortVersionString)
  *   BUILD_NUMBER         10203 (CFBundleVersion)
- *   RELEASE_NOTES_FILE   optional, text for "What's New" (same text on every locale)
+ *   RELEASE_NOTES_DIR    optional, folder with whatsnew-<locale> files for "What's New";
+ *                        a locale without its own file gets the WHATSNEW_LOCALE one
  *   WHATSNEW_LOCALE      optional, default es-ES (localization created if missing)
  *   BUILD_TIMEOUT_MINUTES optional, default 45
  *
@@ -40,6 +41,7 @@
  */
 import { createPrivateKey, sign } from "node:crypto";
 import { appendFileSync, existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 
 const API = "https://api.appstoreconnect.apple.com";
 const EDITABLE_STATES = new Set([
@@ -101,8 +103,15 @@ const versionString = env("APP_VERSION");
 const buildNumber = env("BUILD_NUMBER");
 const locale = env("WHATSNEW_LOCALE", "es-ES");
 const timeoutMinutes = Number(env("BUILD_TIMEOUT_MINUTES", "45"));
-const notesFile = process.env.RELEASE_NOTES_FILE;
-const whatsNew = notesFile && existsSync(notesFile) ? readFileSync(notesFile, "utf8").trim() : "";
+const notesDir = process.env.RELEASE_NOTES_DIR;
+const notesFor = (where) => {
+  for (const l of [where, locale]) {
+    const file = notesDir && join(notesDir, `whatsnew-${l}`);
+    if (file && existsSync(file)) return readFileSync(file, "utf8").trim();
+  }
+  return "";
+};
+const whatsNew = notesFor(locale);
 
 // ---------------------------------------------------------------- API client
 
@@ -383,7 +392,7 @@ async function setWhatsNew(version) {
         data: {
           type: "appStoreVersionLocalizations",
           id: localization.id,
-          attributes: { whatsNew },
+          attributes: { whatsNew: notesFor(where) },
         },
       });
       log(`What's New (${where}): set`);

@@ -117,9 +117,9 @@ PR / Push a main|develop
 
 1. Editar `mobile/version.json` → incrementar versión (semver)
 2. Ejecutar `node scripts/propagate-version.js` → sincroniza a package.json, build.gradle
-3. Commit + push a main
-4. `ensure-tags.yml` crea tag `mobile@x.y.z` automáticamente
-5. `build-android.yml` se dispara con el tag → build + deploy a Play Store
+3. Escribir las novedades de la versión, para usuarios, en `mobile/whatsnew/whatsnew-es-ES` y `whatsnew-en-US` (máx. 500 caracteres). Es lo que publican Play y App Store tal cual
+4. Commit + push a main
+5. `ensure-tags.yml` crea tag `mobile@x.y.z` y lanza `release-mobile-app.yml` (producción en Play y revisión en App Store)
 
 ---
 

@@ -7,7 +7,8 @@
 //              must exit 1.
 //   newer-editable  only a later version (1.0.14) is editable: it must not be renamed;
 //              the script tries to create 1.0.13, Apple refuses and the script exits 1.
-// When the version is submitted, only the unanswered declared age rating question (socialMedia) is written.
+// When the version is submitted, only the unanswered declared age rating question (socialMedia) is written,
+// and each localization gets the What's New of its own whatsnew-<locale> file.
 //
 //   KEY=$(node -e "const {generateKeyPairSync}=require('crypto');console.log(Buffer.from(generateKeyPairSync('ec',{namedCurve:'P-256'}).privateKey.export({type:'pkcs8',format:'pem'})).toString('base64'))")
 //   APP_STORE_CONNECT_API_KEY_ID=k APP_STORE_CONNECT_API_ISSUER_ID=i APP_STORE_CONNECT_API_KEY_BASE64=$KEY \
@@ -16,11 +17,21 @@
 //
 // Prints "MOCK CHECK OK" and exits 0 when the scenario behaves as expected.
 
+import { mkdtempSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+
 const scenario = process.env.MOCK_CASE ?? "stale";
 const refusalDetail =
   scenario === "stale"
     ? "Version is not ready to be submitted yet, please try again later."
     : "You must provide a value for the attribute copyright.";
+
+// One notes file per locale: a locale must never get another locale's text.
+const notesDir = mkdtempSync(join(tmpdir(), "whatsnew-"));
+writeFileSync(join(notesDir, "whatsnew-es-ES"), "Novedades");
+writeFileSync(join(notesDir, "whatsnew-en-US"), "News");
+process.env.RELEASE_NOTES_DIR = notesDir;
 
 // The script polls with sleep(): make every wait instant.
 const realSetTimeout = globalThis.setTimeout;
@@ -71,6 +82,16 @@ globalThis.fetch = async (url, { method = "GET", body } = {}) => {
   }
   if (route === "/v1/appStoreVersions/version/relationships/build")
     return new globalThis.Response(null, { status: 204 });
+
+  if (route.startsWith("/v1/appStoreVersions/version/appStoreVersionLocalizations"))
+    return data([
+      { id: "es-ES", attributes: { locale: "es-ES" } },
+      { id: "en-US", attributes: { locale: "en-US" } },
+    ]);
+  if (method === "PATCH" && route.startsWith("/v1/appStoreVersionLocalizations/")) {
+    events.push(`whatsNew ${route.split("/").pop()}=${attributes.whatsNew}`);
+    return data({ id: route.split("/").pop(), attributes });
+  }
 
   if (route.startsWith("/v1/apps/app/appInfos"))
     return data([
@@ -134,12 +155,20 @@ globalThis.fetch = async (url, { method = "GET", body } = {}) => {
 };
 
 const ageRating = 'age rating {"socialMedia":false}';
+const whatsNew = ["whatsNew es-ES=Novedades", "whatsNew en-US=News"];
 const expected = {
   stale: {
-    events: [ageRating, "submit old (refused)", "cancel old", "create new", "submit new"],
+    events: [
+      ageRating,
+      ...whatsNew,
+      "submit old (refused)",
+      "cancel old",
+      "create new",
+      "submit new",
+    ],
     exitCode: 0,
   },
-  "other-409": { events: [ageRating, "submit old (refused)"], exitCode: 1 },
+  "other-409": { events: [ageRating, ...whatsNew, "submit old (refused)"], exitCode: 1 },
   "newer-editable": { events: ["create version (refused)"], exitCode: 1 },
 }[scenario];
 

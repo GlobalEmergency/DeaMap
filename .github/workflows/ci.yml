@@ -143,6 +143,21 @@ jobs:
       - name: Format check
         run: npm run format:check
 
+      # Play rejects release notes over 500 characters, and only at upload time
+      - name: Store release notes length
+        run: |
+          for f in mobile/whatsnew/whatsnew-*; do
+            n=$(wc -m < "$f")
+            if [ "$n" -gt 500 ]; then echo "::error file=$f::$n caracteres, Play admite 500"; exit 1; fi
+          done
+
+      - name: App Store submit script (mock)
+        run: |
+          KEY=$(node -e "const {generateKeyPairSync}=require('crypto');console.log(Buffer.from(generateKeyPairSync('ec',{namedCurve:'P-256'}).privateKey.export({type:'pkcs8',format:'pem'})).toString('base64'))")
+          for c in stale other-409 newer-editable; do
+            APP_STORE_CONNECT_API_KEY_ID=k APP_STORE_CONNECT_API_ISSUER_ID=i APP_STORE_CONNECT_API_KEY_BASE64="$KEY"             APP_VERSION=1.0.13 BUILD_NUMBER=10013 MOCK_CASE=$c               node --import ./.github/scripts/test/app-store-submit.mock.mjs .github/scripts/app-store-submit.mjs
+          done
+
   test:
     name: Tests
     runs-on: ubuntu-latest
