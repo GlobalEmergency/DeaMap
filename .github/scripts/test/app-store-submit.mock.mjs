@@ -29,7 +29,7 @@ globalThis.setTimeout = (fn, _ms, ...args) => realSetTimeout(fn, 0, ...args);
 const events = [];
 let cancelPolls = 0;
 
-const json = (status, payload) => new Response(JSON.stringify(payload), { status });
+const json = (status, payload) => new globalThis.Response(JSON.stringify(payload), { status });
 const data = (payload) => json(200, { data: payload });
 
 globalThis.fetch = async (url, { method = "GET", body } = {}) => {
@@ -70,7 +70,7 @@ globalThis.fetch = async (url, { method = "GET", body } = {}) => {
     });
   }
   if (route === "/v1/appStoreVersions/version/relationships/build")
-    return new Response(null, { status: 204 });
+    return new globalThis.Response(null, { status: 204 });
 
   if (route.startsWith("/v1/apps/app/appInfos"))
     return data([
