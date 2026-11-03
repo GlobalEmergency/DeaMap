@@ -209,12 +209,6 @@ jobs:
             mobile/android/app/build/outputs/bundle/release/*.aab
           retention-days: 30
 
-      - name: Generate release notes
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_BODY: ${{ github.event.release.body || '' }}
-        run: bash .github/scripts/generate-whatsnew.sh ./mobile/whatsnew
-
       - name: Upload to Google Play Store
         if: success()
         uses: r0adkll/upload-google-play@935ef9c68bb393a8e6116b1575626a7f5be3a7fb # v1
@@ -246,12 +240,6 @@ jobs:
 
       - name: Install googleapis
         run: npm install --no-save --ignore-scripts googleapis
-
-      - name: Generate release notes
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_BODY: ${{ github.event.release.body || '' }}
-        run: bash .github/scripts/generate-whatsnew.sh ./mobile/whatsnew
 
       - name: Promote version on Play Store
         env:
@@ -543,12 +531,6 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: Generate release notes
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_BODY: ${{ github.event.release.body || '' }}
-        run: bash .github/scripts/generate-whatsnew.sh ./mobile/whatsnew
-
       - name: Submit version for review
         env:
           APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
@@ -556,7 +538,7 @@ jobs:
           APP_STORE_CONNECT_API_KEY_BASE64: ${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}
           APP_VERSION: ${{ needs.prepare.outputs.version }}
           BUILD_NUMBER: ${{ needs.prepare.outputs.build_number }}
-          RELEASE_NOTES_FILE: mobile/whatsnew/whatsnew-es-ES
+          RELEASE_NOTES_DIR: mobile/whatsnew
         run: node .github/scripts/app-store-submit.mjs
 
   # ──────────────────────────────────────────────────────────────
