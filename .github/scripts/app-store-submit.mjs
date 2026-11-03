@@ -9,12 +9,16 @@
  *      (renaming the editable one if it has another string, e.g. the "1.0"
  *      App Store Connect creates with the app record);
  *   4. attach the build;
- *   5. set "What's New" on every localization of the version (creating the
+ *   5. answer the age rating questions the owner has declared, where the
+ *      editable app info still has them unanswered (DECLARED_AGE_RATING);
+ *   6. set "What's New" on every localization of the version (creating the
  *      WHATSNEW_LOCALE one if missing; skipped if Apple refuses it, as it does
  *      for the very first version);
- *   6. add the version to a review submission (reusing an open one) and submit it.
+ *   7. add the version to a review submission (reusing an open one) and submit it.
  *
  * Idempotent: a version already waiting for or in review is left alone.
+ * After an App Review rejection, the old UNRESOLVED_ISSUES submission is
+ * canceled only if Apple refuses to resubmit it (see isStaleRejectedSubmission).
  *
  * `node app-store-submit.mjs check` only tells whether this build number is
  * already in App Store Connect (any processing state), as `uploaded=true|false`
@@ -25,7 +29,7 @@
  * Environment:
  *   APP_STORE_CONNECT_API_KEY_ID, APP_STORE_CONNECT_API_ISSUER_ID,
  *   APP_STORE_CONNECT_API_KEY_BASE64 (the .p8 PEM, base64)   credentials
- *   BUNDLE_ID            es.deamap.mobile
+ *   BUNDLE_ID            optional, default es.deamap.mobile
  *   APP_VERSION          1.2.3 (CFBundleShortVersionString)
  *   BUILD_NUMBER         10203 (CFBundleVersion)
  *   RELEASE_NOTES_FILE   optional, text for "What's New" (same text on every locale)
@@ -59,8 +63,26 @@ const ALREADY_SUBMITTED_STATES = new Set([
   "READY_FOR_DISTRIBUTION",
   "ACCEPTED",
   "PROCESSING_FOR_DISTRIBUTION",
+  // Live once, later replaced or pulled: nothing to submit either.
+  "REPLACED_WITH_NEW_VERSION",
+  "REMOVED_FROM_SALE",
+  "DEVELOPER_REMOVED_FROM_SALE",
+  "PREORDER_READY_FOR_SALE",
+  "PENDING_CONTRACT",
 ]);
 const OPEN_SUBMISSION_STATES = ["READY_FOR_REVIEW", "UNRESOLVED_ISSUES"];
+const EDITABLE_APP_INFO_STATES = new Set([
+  "PREPARE_FOR_SUBMISSION",
+  "DEVELOPER_REJECTED",
+  "REJECTED",
+]);
+// Answers the owner declared on 2026-11-03 to the age rating questions Apple
+// added later. Only written where the editable app info leaves them unanswered,
+// so a later change made in App Store Connect is never overwritten.
+const DECLARED_AGE_RATING = {
+  socialMedia: false,
+  socialMediaAgeRestricted: false,
+};
 const IN_FLIGHT_SUBMISSION_STATES = ["WAITING_FOR_REVIEW", "IN_REVIEW"];
 
 const env = (name, fallback) => {
@@ -74,7 +96,7 @@ const issuerId = env("APP_STORE_CONNECT_API_ISSUER_ID");
 const privateKey = createPrivateKey(
   Buffer.from(env("APP_STORE_CONNECT_API_KEY_BASE64"), "base64").toString("utf8")
 );
-const bundleId = env("BUNDLE_ID");
+const bundleId = env("BUNDLE_ID", "es.deamap.mobile");
 const versionString = env("APP_VERSION");
 const buildNumber = env("BUILD_NUMBER");
 const locale = env("WHATSNEW_LOCALE", "es-ES");
@@ -105,20 +127,30 @@ function token() {
 
 class AppleApiError extends Error {
   constructor(method, path, status, errors) {
-    // A 409 on submit carries the real reasons in meta.associatedErrors
-    // (missing metadata, age rating questions...), keyed by resource.
     const line = (e, indent) =>
       `${indent}- [${e.code ?? e.status}] ${e.title ?? ""}: ${e.detail ?? ""}`;
+    // Apple puts the real cause of a 409 on submit in meta.associatedErrors.
     const details = (errors ?? [])
       .flatMap((e) => [
         line(e, "  "),
         ...Object.values(e.meta?.associatedErrors ?? {})
           .flat()
-          .map((a) => line(a, "    ")),
+          .map((a) => line(a, "      ")),
       ])
       .join("\n");
     super(`${method} ${path} -> HTTP ${status}${details ? `\n${details}` : ""}`);
     this.status = status;
+    this.errors = errors ?? [];
+  }
+
+  /** `detail` of every error, associated errors included. */
+  allDetails() {
+    return this.errors.flatMap((e) => [
+      e.detail ?? "",
+      ...Object.values(e.meta?.associatedErrors ?? {})
+        .flat()
+        .map((a) => a.detail ?? ""),
+    ]);
   }
 }
 
@@ -216,8 +248,8 @@ async function waitForBuild(appId) {
 }
 
 async function ensureExportCompliance(build) {
-  // Info.plist declares ITSAppUsesNonExemptEncryption = false, which normally
-  // answers this. Fallback for a build where Apple still asks.
+  // Info.plist does not set ITSAppUsesNonExemptEncryption, so Apple asks on
+  // every build: the app only uses HTTPS, which is exempt.
   if (
     build.attributes.usesNonExemptEncryption === null ||
     build.attributes.usesNonExemptEncryption === undefined
@@ -256,7 +288,11 @@ async function findOrCreateVersion(appId) {
     );
   }
 
-  const editable = versions.find((v) => EDITABLE_STATES.has(stateOf(v)));
+  // Only an older editable version is reused: one prepared by hand for a later
+  // release is left alone (Apple then refuses a second editable version, loudly).
+  const editable = versions.find(
+    (v) => EDITABLE_STATES.has(stateOf(v)) && isOlder(v.attributes.versionString, versionString)
+  );
   if (editable) {
     log(
       `App Store version: renaming editable "${editable.attributes.versionString}" (${stateOf(editable)}) to ${versionString}`
@@ -295,6 +331,35 @@ async function attachBuild(version, build) {
   log(`Build ${buildNumber} attached to version ${versionString}`);
 }
 
+async function answerAgeRatingQuestions(appId) {
+  const appInfos = (await api("GET", `/v1/apps/${appId}/appInfos?limit=10`)).data ?? [];
+  const editable = appInfos.find((i) =>
+    EDITABLE_APP_INFO_STATES.has(i.attributes.state ?? i.attributes.appStoreState)
+  );
+  if (!editable) {
+    log("Age rating: no editable app info, nothing to answer");
+    return;
+  }
+  const declaration = (await api("GET", `/v1/appInfos/${editable.id}/ageRatingDeclaration`)).data;
+  const unanswered = Object.fromEntries(
+    Object.entries(DECLARED_AGE_RATING).filter(
+      ([question]) => declaration.attributes[question] === null
+    )
+  );
+  if (Object.keys(unanswered).length === 0) {
+    log("Age rating: declared questions already answered");
+    return;
+  }
+  await api("PATCH", `/v1/ageRatingDeclarations/${declaration.id}`, {
+    data: {
+      type: "ageRatingDeclarations",
+      id: declaration.id,
+      attributes: unanswered,
+    },
+  });
+  log(`Age rating: answered ${JSON.stringify(unanswered)}`);
+}
+
 async function setWhatsNew(version) {
   if (!whatsNew) {
     log("What's New: no release notes file, skipped");
@@ -305,7 +370,7 @@ async function setWhatsNew(version) {
       .data ?? [];
   // Apple refuses "What's New" on the very first version of an app: any 4xx
   // on it is logged and skipped, it never blocks the submission.
-  const ignoreRefusedWhatsNew = (where, err) => {
+  const tolerateRefusedWhatsNew = (where, err) => {
     if (!(err instanceof AppleApiError) || err.status >= 500) throw err;
     log(
       `What's New (${where}): not accepted by Apple, skipped (expected on the first version)\n${err.message}`
@@ -323,7 +388,7 @@ async function setWhatsNew(version) {
       });
       log(`What's New (${where}): set`);
     } catch (err) {
-      ignoreRefusedWhatsNew(where, err);
+      tolerateRefusedWhatsNew(where, err);
     }
   }
   if (localizations.some((l) => l.attributes.locale === locale)) return;
@@ -334,7 +399,7 @@ async function setWhatsNew(version) {
     await createLocalization(version, { locale, whatsNew });
     log(`What's New (${locale}): set`);
   } catch (err) {
-    ignoreRefusedWhatsNew(locale, err);
+    tolerateRefusedWhatsNew(locale, err);
     await createLocalization(version, { locale });
   }
 }
@@ -371,18 +436,58 @@ async function submitForReview(appId, version) {
   if (submission) {
     log(`Review submission: reusing ${submission.id} (${submission.attributes.state})`);
   } else {
-    submission = (
-      await api("POST", "/v1/reviewSubmissions", {
-        data: {
-          type: "reviewSubmissions",
-          attributes: { platform: "IOS" },
-          relationships: { app: rel("apps", appId) },
-        },
-      })
-    ).data;
-    log(`Review submission: created ${submission.id}`);
+    submission = await createSubmission(appId);
   }
 
+  try {
+    await addAndSubmit(submission, version);
+  } catch (err) {
+    if (!(await isStaleRejectedSubmission(err, submission, version))) throw err;
+    log(
+      `Review submission ${submission.id} (UNRESOLVED_ISSUES) refused:\n${err.message}\nCanceling it and starting a new one.`
+    );
+    await cancelSubmission(submission.id);
+    await addAndSubmit(await createSubmission(appId), version);
+  }
+}
+
+/**
+ * A submission rejected by App Review keeps its REJECTED items: Apple refuses
+ * to submit it again ("Version is not ready to be submitted yet") and to change
+ * its items. Only that refusal, on a submission holding this version, warrants
+ * canceling it (seen on 2026-11-03 with 1.10.0).
+ */
+async function isStaleRejectedSubmission(err, submission, version) {
+  return (
+    err instanceof AppleApiError &&
+    err.status === 409 &&
+    submission.attributes.state === "UNRESOLVED_ISSUES" &&
+    err.allDetails().some((d) => /not ready to be submitted/i.test(d)) &&
+    (await submissionHasVersion(submission.id, version.id))
+  );
+}
+
+async function createSubmission(appId) {
+  const submission = (
+    await api("POST", "/v1/reviewSubmissions", {
+      data: {
+        type: "reviewSubmissions",
+        attributes: { platform: "IOS" },
+        relationships: { app: rel("apps", appId) },
+      },
+    })
+  ).data;
+  log(`Review submission: created ${submission.id}`);
+  return submission;
+}
+
+function patchSubmission(submissionId, attributes) {
+  return api("PATCH", `/v1/reviewSubmissions/${submissionId}`, {
+    data: { type: "reviewSubmissions", id: submissionId, attributes },
+  });
+}
+
+async function addAndSubmit(submission, version) {
   if (await submissionHasVersion(submission.id, version.id)) {
     log(`Review submission already contains version ${versionString}`);
   } else {
@@ -398,14 +503,30 @@ async function submitForReview(appId, version) {
     log(`Review submission: version ${versionString} added`);
   }
 
-  await api("PATCH", `/v1/reviewSubmissions/${submission.id}`, {
-    data: {
-      type: "reviewSubmissions",
-      id: submission.id,
-      attributes: { submitted: true },
-    },
-  });
+  await patchSubmission(submission.id, { submitted: true });
   log(`Submitted version ${versionString} (build ${buildNumber}) for App Store review.`);
+}
+
+const CANCEL_POLL_MS = 30_000;
+const CANCEL_POLL_ATTEMPTS = 20;
+
+/** Cancels a review submission and waits until Apple has closed it (CANCELING is transient). */
+async function cancelSubmission(submissionId) {
+  await patchSubmission(submissionId, { canceled: true });
+  for (let attempt = 1; ; attempt++) {
+    const state = (await api("GET", `/v1/reviewSubmissions/${submissionId}`)).data.attributes.state;
+    if (state === "COMPLETE") {
+      log(`Review submission ${submissionId}: canceled`);
+      return;
+    }
+    if (attempt === CANCEL_POLL_ATTEMPTS) {
+      fail(
+        `Review submission ${submissionId} still ${state} after canceling it ` +
+          `(${(CANCEL_POLL_ATTEMPTS * CANCEL_POLL_MS) / 60_000} min): re-run the "ios-submit" job.`
+      );
+    }
+    await sleep(CANCEL_POLL_MS);
+  }
 }
 
 async function submissionHasVersion(submissionId, versionId) {
@@ -435,6 +556,17 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+/** Numeric x.y.z comparison: isOlder('1.0', '1.0.12') and isOlder('1.0.9', '1.0.10'). */
+function isOlder(a, b) {
+  const pa = a.split(".").map(Number);
+  const pb = b.split(".").map(Number);
+  for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
+    const diff = (pa[i] ?? 0) - (pb[i] ?? 0);
+    if (diff !== 0) return diff < 0;
+  }
+  return false;
+}
+
 async function check() {
   const build = await findBuild((await findApp()).id);
   const uploaded = Boolean(build);
@@ -451,11 +583,13 @@ async function main() {
   if (process.argv[2] === "check") return check();
   log(`Submitting ${bundleId} ${versionString} (build ${buildNumber}) for App Store review`);
   const app = await findApp();
-  const build = await waitForBuild(app.id);
-  await ensureExportCompliance(build);
+  // Version first: one already in review or live needs no build at all.
   const version = await findOrCreateVersion(app.id);
   if (!version) return;
+  const build = await waitForBuild(app.id);
+  await ensureExportCompliance(build);
   await attachBuild(version, build);
+  await answerAgeRatingQuestions(app.id);
   await setWhatsNew(version);
   await submitForReview(app.id, version);
 }

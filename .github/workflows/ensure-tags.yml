@@ -41,46 +41,43 @@ jobs:
             VERSION=$(node -e "console.log(require('./mobile/version.json').version)")
             TAG="mobile@${VERSION}"
             echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+            echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
             if git rev-parse "$TAG" >/dev/null 2>&1; then
               echo "✅ Tag $TAG already exists — skipping"
-              echo "created=false" >> "$GITHUB_OUTPUT"
             else
               echo "📦 Creating tag $TAG"
               git tag "$TAG"
               git push origin "$TAG"
               echo "✅ Tag $TAG created and pushed"
-              echo "created=true" >> "$GITHUB_OUTPUT"
             fi
           else
             echo "⚠️ mobile/version.json not found — skipping mobile tag"
-            echo "created=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Create mobile GitHub Release
-        if: steps.mobile-tag.outputs.created == 'true'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          TAG="mobile@${{ steps.mobile-tag.outputs.version }}"
-          echo "📦 Creating GitHub Release for $TAG"
-          gh release create "$TAG" \
-            --title "Mobile v${{ steps.mobile-tag.outputs.version }}" \
-            --generate-notes
-          echo "✅ Release created"
-
+      # The release workflow creates the GitHub Release as it starts (create-release),
+      # so a version without one has not been released yet: a failed dispatch
+      # is retried by re-running this job, a released version is never repeated.
+      # gh workflow run because a release created with GITHUB_TOKEN would not
+      # trigger the release workflow; --ref pins the run to the tagged commit.
       - name: Trigger mobile release workflow
-        if: steps.mobile-tag.outputs.created == 'true'
+        if: steps.mobile-tag.outputs.tag != ''
         env:
           GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.mobile-tag.outputs.tag }}
         run: |
-          echo "🚀 Triggering release workflow for v${{ steps.mobile-tag.outputs.version }}"
-          gh workflow run release-mobile-app.yml \
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "✅ Release $TAG already exists — nothing to publish"
+            exit 0
+          fi
+          echo "🚀 Triggering release workflow for $TAG"
+          gh workflow run release-mobile-app.yml --ref "$TAG" \
             -f deploy_android=true \
             -f deploy_ios=true \
             -f android_track=production
 
       - name: Ensure web tag
+        if: ${{ !cancelled() }}
         run: |
           VERSION=$(node -e "console.log(require('./package.json').version)")
           TAG="web@${VERSION}"

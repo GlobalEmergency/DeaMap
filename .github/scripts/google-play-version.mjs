@@ -209,8 +209,8 @@ async function runPromote(client, versionCode, fromTrack, toTrack) {
     );
 
     if (!sourceRelease) {
-      console.error(`  Error: versionCode ${versionCode} no encontrado en track ${fromTrack}`);
-      process.exit(1);
+      // throw (no process.exit) para que el catch descarte el edit
+      throw new Error(`versionCode ${versionCode} no encontrado en track ${fromTrack}`);
     }
 
     console.log(`  Release encontrado en ${fromTrack}: status=${sourceRelease.status}`);

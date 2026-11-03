@@ -159,7 +159,7 @@ En cada push a `main`:
 
 - Lee `mobile/version.json` → crea tag `mobile@x.y.z` si no existe
 - Lee `package.json` (root) → crea tag `web@x.y.z` si no existe
-- Los tags disparan workflows de build/release automáticamente
+- Si la versión móvil aún no tiene GitHub Release, lanza `release-mobile-app.yml` sobre el tag (publica en producción)
 
 ---
 
@@ -595,7 +595,8 @@ npm run ios:open          # Abrir Xcode
 
 ```
 mobile/version.json → propagate-version.js → package.json + build.gradle + project.pbxproj
-push a main → ensure-tags.yml → tag mobile@x.y.z
-tag → build-android.yml (Play Store internal) + build-ios.yml (TestFlight)
-probar → promover a producción manualmente
+push a main → ensure-tags.yml → tag mobile@x.y.z → release-mobile-app.yml (sobre el tag)
+Android → Google Play production (build + subida, o promote si el versionCode ya está en otro track)
+iOS → TestFlight (si el build number no está ya subido) → app-store-submit.mjs → revisión de App Store
+Cualquier fallo de subida o envío pone el run en rojo con el error de Google/Apple
 ```

@@ -30,13 +30,18 @@ on:
 permissions:
   contents: read
 
+# Two runs of the same version would both check the stores before either uploads
+concurrency:
+  group: release-mobile-app
+  cancel-in-progress: false
+
 env:
   NODE_VERSION: "22"
   JAVA_VERSION: "21"
 
 jobs:
   # ──────────────────────────────────────────────────────────────
-  # 1. Prepare — extract version + build number
+  # 1. Prepare — extract version + build number + Android track
   # ──────────────────────────────────────────────────────────────
   prepare:
     name: Prepare Release
@@ -49,7 +54,7 @@ jobs:
       version: ${{ steps.version.outputs.version }}
       build_number: ${{ steps.version.outputs.build_number }}
       # A published GitHub Release has no inputs: it goes to production too
-      track: ${{ github.event.inputs.android_track || 'production' }}
+      android_track: ${{ github.event.inputs.android_track || 'production' }}
 
     steps:
       - name: Checkout repository
@@ -105,7 +110,7 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Install googleapis
-        run: npm install googleapis
+        run: npm install --no-save --ignore-scripts googleapis
 
       - name: Check version on Play Store
         id: check
@@ -116,7 +121,7 @@ jobs:
         run: |
           node .github/scripts/google-play-version.mjs check \
             --version-code ${{ needs.prepare.outputs.build_number }} \
-            --target-track ${{ needs.prepare.outputs.track }}
+            --target-track ${{ needs.prepare.outputs.android_track }}
 
   # ──────────────────────────────────────────────────────────────
   # 3a. Build Android (when version not on Play Store yet)
@@ -217,7 +222,7 @@ jobs:
           serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
           packageName: es.deamap.mobile
           releaseFiles: mobile/android/app/build/outputs/bundle/release/*.aab
-          track: ${{ needs.prepare.outputs.track }}
+          track: ${{ needs.prepare.outputs.android_track }}
           status: completed
           whatsNewDirectory: ./mobile/whatsnew
 
@@ -240,7 +245,13 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Install googleapis
-        run: npm install googleapis
+        run: npm install --no-save --ignore-scripts googleapis
+
+      - name: Generate release notes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_BODY: ${{ github.event.release.body || '' }}
+        run: bash .github/scripts/generate-whatsnew.sh ./mobile/whatsnew
 
       - name: Promote version on Play Store
         env:
@@ -251,7 +262,7 @@ jobs:
           node .github/scripts/google-play-version.mjs promote \
             --version-code ${{ needs.prepare.outputs.build_number }} \
             --from-track ${{ needs.check-play-store.outputs.source_track }} \
-            --to-track ${{ needs.prepare.outputs.track }}
+            --to-track ${{ needs.prepare.outputs.android_track }}
 
   # ──────────────────────────────────────────────────────────────
   # 4a. Check App Store Connect — a build number can only be uploaded once
@@ -281,7 +292,6 @@ jobs:
           APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
           APP_STORE_CONNECT_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
           APP_STORE_CONNECT_API_KEY_BASE64: ${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}
-          BUNDLE_ID: es.deamap.mobile
           APP_VERSION: ${{ needs.prepare.outputs.version }}
           BUILD_NUMBER: ${{ needs.prepare.outputs.build_number }}
         run: node .github/scripts/app-store-submit.mjs check
@@ -544,7 +554,6 @@ jobs:
           APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
           APP_STORE_CONNECT_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
           APP_STORE_CONNECT_API_KEY_BASE64: ${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}
-          BUNDLE_ID: es.deamap.mobile
           APP_VERSION: ${{ needs.prepare.outputs.version }}
           BUILD_NUMBER: ${{ needs.prepare.outputs.build_number }}
           RELEASE_NOTES_FILE: mobile/whatsnew/whatsnew-es-ES
@@ -618,18 +627,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           TAG="mobile@${{ needs.prepare.outputs.version }}"
-          # Upload all artifacts found
-          FILES=""
-          if [ -d ./android ]; then
-            for f in ./android/*; do
-              [ -f "$f" ] && FILES="$FILES $f"
-            done
-          fi
-          if [ -d ./ios ]; then
-            for f in ./ios/*; do
-              [ -f "$f" ] && FILES="$FILES $f"
-            done
-          fi
+          # Upload all artifacts found (the Android artifact keeps its apk/ and bundle/ subfolders)
+          FILES=$(find ./android ./ios -type f 2>/dev/null | tr '\n' ' ')
           if [ -n "$FILES" ]; then
             echo "📦 Uploading artifacts to release $TAG"
             gh release upload "$TAG" $FILES --clobber
@@ -665,7 +664,7 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Version:** ${{ needs.prepare.outputs.version }}" >> $GITHUB_STEP_SUMMARY
           echo "**Build Number:** ${{ needs.prepare.outputs.build_number }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Target Track:** ${{ needs.prepare.outputs.track }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Android Track:** ${{ needs.prepare.outputs.android_track }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
           # Android action taken
