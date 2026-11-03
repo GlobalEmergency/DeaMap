@@ -78,7 +78,7 @@ jobs:
           gh workflow run release-mobile-app.yml \
             -f deploy_android=true \
             -f deploy_ios=true \
-            -f android_track=internal
+            -f android_track=production
 
       - name: Ensure web tag
         run: |
